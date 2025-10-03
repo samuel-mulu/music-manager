@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { Provider } from "react-redux";
 import { ThemeProvider } from "@emotion/react";
 import { css } from "@emotion/css";
 import store from "./store";
 import SongList from "./features/songs/songslist";
+import StatsDashboard from "./features/stats/StatsDashboard";
 import {
   AppContainer,
   Header,
@@ -14,6 +15,7 @@ import {
   Subtitle,
   MainContent,
   Footer,
+  Navigation,
 } from "./components/layout";
 
 // Theme type definition
@@ -133,6 +135,8 @@ const globalStyles = css`
 `;
 
 function App() {
+  const [activeTab, setActiveTab] = useState<"songs" | "stats">("songs");
+
   return (
     <Provider store={store}>
       <ThemeProvider theme={theme}>
@@ -151,7 +155,10 @@ function App() {
             </Header>
 
             <MainContent>
-              <SongList />
+              <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
+
+              {activeTab === "songs" && <SongList />}
+              {activeTab === "stats" && <StatsDashboard />}
             </MainContent>
 
             <Footer>

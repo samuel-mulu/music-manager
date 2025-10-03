@@ -2,6 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import createSagaMiddleware from "redux-saga";
 
 import songsReducer from "../features/songs/songsSlice";
+import statsReducer from "../features/stats/statsSlice";
 import rootSaga from "./rootSaga";
 
 // 1. Create Saga middleware
@@ -11,6 +12,7 @@ const sagaMiddleware = createSagaMiddleware();
 const store = configureStore({
   reducer: {
     songs: songsReducer,
+    stats: statsReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({ thunk: false }).concat(sagaMiddleware),

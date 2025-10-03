@@ -18,7 +18,7 @@ export const Header = styled.header`
 
 export const HeaderContent = styled.div`
   max-width: 1200px;
-  margin: 0 auto;
+  margin: 0px auto;
   padding: 0 ${({ theme }) => theme.space.lg};
   display: flex;
   align-items: center;

@@ -10,3 +10,4 @@ export {
   MainContent,
   Footer,
 } from "./AppContainer";
+export { Navigation } from "./Navigation";

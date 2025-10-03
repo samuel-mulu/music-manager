@@ -10,6 +10,17 @@ import {
   setCurrentSong,
 } from "./songsSlice";
 import { Song, CreateSongRequest } from "../../types/song.types";
+import {
+  Button,
+  Card,
+  Input,
+  Select,
+  Badge,
+  ModalOverlay,
+  ModalContent,
+  Spinner,
+  Alert,
+} from "../../components/ui";
 
 export default function SongList() {
   const dispatch = useDispatch<AppDispatch>();
@@ -35,6 +46,14 @@ export default function SongList() {
     songType: "single",
     genre: "",
   });
+
+  // Filter and search states
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedAlbum, setSelectedAlbum] = useState("all");
+  const [selectedGenre, setSelectedGenre] = useState("all");
+  const [sortBy, setSortBy] = useState("title");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
 
   useEffect(() => {
     dispatch(fetchSongsRequest());
@@ -96,112 +115,498 @@ export default function SongList() {
     dispatch(clearError());
   };
 
+  // Filter and search functions
+  const filteredSongs = list.filter((song) => {
+    const matchesSearch =
+      song.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      song.artist.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesAlbum =
+      selectedAlbum === "all" || song.songType === selectedAlbum;
+    const matchesGenre =
+      selectedGenre === "all" ||
+      song.genre.toLowerCase() === selectedGenre.toLowerCase();
+
+    return matchesSearch && matchesAlbum && matchesGenre;
+  });
+
+  const sortedSongs = [...filteredSongs].sort((a, b) => {
+    switch (sortBy) {
+      case "title":
+        return a.title.localeCompare(b.title);
+      case "artist":
+        return a.artist.localeCompare(b.artist);
+      case "genre":
+        return a.genre.localeCompare(b.genre);
+      default:
+        return 0;
+    }
+  });
+
+  const totalPages = Math.ceil(sortedSongs.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedSongs = sortedSongs.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
+
+  const clearFilters = () => {
+    setSearchTerm("");
+    setSelectedAlbum("all");
+    setSelectedGenre("all");
+    setSortBy("title");
+    setCurrentPage(1);
+  };
+
+  // Get unique genres and albums for filter dropdowns
+  const uniqueGenres = Array.from(new Set(list.map((song) => song.genre)));
+  const uniqueAlbums = Array.from(new Set(list.map((song) => song.songType)));
+
   if (loading.fetch)
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="text-lg">Loading songs...</div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "400px",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <Spinner />
+          <span style={{ fontSize: "18px", color: "#64748b" }}>
+            Loading songs...
+          </span>
+        </div>
       </div>
     );
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold text-gray-800">Songs</h2>
-        <button
+    <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "24px" }}>
+      {/* Header Section */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "32px",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <span style={{ fontSize: "24px" }}>🎵</span>
+          <h2
+            style={{
+              fontSize: "25px",
+              fontWeight: "700",
+              color: "#1e293b",
+              margin: 0,
+            }}
+          >
+            Song List
+          </h2>
+        </div>
+        <Button
+          variant="primary"
+          size="lg"
           onClick={() => setShowCreateForm(true)}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
         >
           Add New Song
-        </button>
+        </Button>
       </div>
 
+      {/* Error Alert */}
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 flex justify-between items-center">
+        <Alert variant="error" style={{ marginBottom: "24px" }}>
           <span>{error}</span>
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={handleClearError}
-            className="text-red-700 hover:text-red-900"
+            style={{ marginLeft: "auto" }}
           >
             ✕
-          </button>
+          </Button>
+        </Alert>
+      )}
+
+      {/* Filter and Search Section */}
+      <Card style={{ padding: "24px", marginBottom: "32px" }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+            gap: "16px",
+            alignItems: "end",
+          }}
+        >
+          <div>
+            <label
+              style={{
+                display: "block",
+                fontSize: "14px",
+                fontWeight: "500",
+                color: "#374151",
+                marginBottom: "8px",
+              }}
+            >
+              Title
+            </label>
+            <Select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+              <option value="title">Sort by Title</option>
+              <option value="artist">Sort by Artist</option>
+              <option value="genre">Sort by Genre</option>
+            </Select>
+          </div>
+
+          <div>
+            <label
+              style={{
+                display: "block",
+                fontSize: "14px",
+                fontWeight: "500",
+                color: "#374151",
+                marginBottom: "8px",
+              }}
+            >
+              Search
+            </label>
+            <Input
+              placeholder="Search by title"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label
+              style={{
+                display: "block",
+                fontSize: "14px",
+                fontWeight: "500",
+                color: "#374151",
+                marginBottom: "8px",
+              }}
+            >
+              Albums
+            </label>
+            <Select
+              value={selectedAlbum}
+              onChange={(e) => setSelectedAlbum(e.target.value)}
+            >
+              <option value="all">All Albums</option>
+              {uniqueAlbums.map((album) => (
+                <option key={album} value={album}>
+                  {album.charAt(0).toUpperCase() + album.slice(1)}
+                </option>
+              ))}
+            </Select>
+          </div>
+
+          <div>
+            <label
+              style={{
+                display: "block",
+                fontSize: "14px",
+                fontWeight: "500",
+                color: "#374151",
+                marginBottom: "8px",
+              }}
+            >
+              Genres
+            </label>
+            <Select
+              value={selectedGenre}
+              onChange={(e) => setSelectedGenre(e.target.value)}
+            >
+              <option value="all">All Genres</option>
+              {uniqueGenres.map((genre) => (
+                <option key={genre} value={genre}>
+                  {genre}
+                </option>
+              ))}
+            </Select>
+          </div>
+
+          <div>
+            <Button
+              variant="secondary"
+              onClick={clearFilters}
+              style={{ width: "100%" }}
+            >
+              Clear Filters
+            </Button>
+          </div>
+        </div>
+      </Card>
+
+      {/* Songs Grid */}
+      {paginatedSongs.length > 0 ? (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+            gap: "24px",
+            marginBottom: "32px",
+          }}
+        >
+          {paginatedSongs.map((song: Song) => (
+            <Card key={song._id} hover={true} style={{ padding: "24px" }}>
+              <div style={{ marginBottom: "16px" }}>
+                <h3
+                  style={{
+                    fontSize: "20px",
+                    fontWeight: "600",
+                    color: "#1e293b",
+                    margin: "0 0 8px 0",
+                  }}
+                >
+                  {song.title}
+                </h3>
+                <p
+                  style={{
+                    fontSize: "16px",
+                    color: "#64748b",
+                    margin: "0 0 8px 0",
+                  }}
+                >
+                  <strong>Artist:</strong> {song.artist}
+                </p>
+                <p
+                  style={{
+                    fontSize: "16px",
+                    color: "#64748b",
+                    margin: "0 0 8px 0",
+                  }}
+                >
+                  <strong>Genre:</strong> {song.genre}
+                </p>
+                <div style={{ marginBottom: "16px" }}>
+                  <Badge variant="primary">
+                    {song.songType.charAt(0).toUpperCase() +
+                      song.songType.slice(1)}
+                  </Badge>
+                </div>
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  gap: "8px",
+                }}
+              >
+                <Button
+                  variant="success"
+                  size="sm"
+                  onClick={() => handleViewSong(song)}
+                  style={{ flex: 1 }}
+                >
+                  View
+                </Button>
+                <Button
+                  variant="warning"
+                  size="sm"
+                  onClick={() => handleEditSong(song)}
+                  style={{ flex: 1 }}
+                >
+                  Edit
+                </Button>
+                <Button
+                  variant="danger"
+                  size="sm"
+                  onClick={() => handleDeleteSong(song._id)}
+                  disabled={loading.delete}
+                  style={{ flex: 1 }}
+                >
+                  {loading.delete ? <Spinner /> : "Delete"}
+                </Button>
+              </div>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <Card
+          style={{
+            padding: "48px",
+            textAlign: "center",
+            marginBottom: "32px",
+          }}
+        >
+          <p
+            style={{
+              fontSize: "18px",
+              color: "#64748b",
+              margin: 0,
+            }}
+          >
+            No songs found
+          </p>
+        </Card>
+      )}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: "16px",
+          }}
+        >
+          <Button
+            variant="secondary"
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </Button>
+
+          <span
+            style={{
+              fontSize: "16px",
+              color: "#64748b",
+              fontWeight: "500",
+            }}
+          >
+            Page {currentPage} of {totalPages}
+          </span>
+
+          <Button
+            variant="secondary"
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </Button>
         </div>
       )}
 
       {/* Create/Edit Form Modal */}
       {showCreateForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-96 max-w-full mx-4 shadow-2xl border border-gray-200">
-            <h3 className="text-xl font-bold mb-4 text-gray-800">
+        <ModalOverlay>
+          <ModalContent style={{ padding: "32px" }}>
+            <h3
+              style={{
+                fontSize: "24px",
+                fontWeight: "700",
+                color: "#1e293b",
+                margin: "0 0 24px 0",
+              }}
+            >
               {editingSong ? "Edit Song" : "Add New Song"}
             </h3>
+
             <form onSubmit={editingSong ? handleUpdateSong : handleCreateSong}>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+              <div style={{ marginBottom: "20px" }}>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "14px",
+                    fontWeight: "500",
+                    color: "#374151",
+                    marginBottom: "8px",
+                  }}
+                >
                   Title
                 </label>
-                <input
+                <Input
                   type="text"
                   name="title"
                   value={formData.title}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
                 />
               </div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+
+              <div style={{ marginBottom: "20px" }}>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "14px",
+                    fontWeight: "500",
+                    color: "#374151",
+                    marginBottom: "8px",
+                  }}
+                >
                   Artist
                 </label>
-                <input
+                <Input
                   type="text"
                   name="artist"
                   value={formData.artist}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
                 />
               </div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+
+              <div style={{ marginBottom: "20px" }}>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "14px",
+                    fontWeight: "500",
+                    color: "#374151",
+                    marginBottom: "8px",
+                  }}
+                >
                   Song Type
                 </label>
-                <select
+                <Select
                   name="songType"
                   value={formData.songType}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
                 >
                   <option value="single">Single</option>
                   <option value="album">Album</option>
-                </select>
+                </Select>
               </div>
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+
+              <div style={{ marginBottom: "32px" }}>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "14px",
+                    fontWeight: "500",
+                    color: "#374151",
+                    marginBottom: "8px",
+                  }}
+                >
                   Genre
                 </label>
-                <input
+                <Input
                   type="text"
                   name="genre"
                   value={formData.genre}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
                 />
               </div>
-              <div className="flex gap-3">
-                <button
+
+              <div style={{ display: "flex", gap: "12px" }}>
+                <Button
                   type="submit"
+                  variant="primary"
                   disabled={loading.create || loading.update}
-                  className="flex-1 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white py-2 px-4 rounded-md transition-colors"
+                  style={{ flex: 1 }}
                 >
-                  {loading.create || loading.update
-                    ? "Saving..."
-                    : editingSong
-                    ? "Update"
-                    : "Create"}
-                </button>
-                <button
+                  {loading.create || loading.update ? (
+                    <>
+                      <Spinner />
+                      <span style={{ marginLeft: "8px" }}>
+                        {editingSong ? "Updating..." : "Creating..."}
+                      </span>
+                    </>
+                  ) : editingSong ? (
+                    "Update"
+                  ) : (
+                    "Create"
+                  )}
+                </Button>
+
+                <Button
                   type="button"
+                  variant="secondary"
                   onClick={() => {
                     setShowCreateForm(false);
                     setEditingSong(null);
@@ -212,112 +617,138 @@ export default function SongList() {
                       genre: "",
                     });
                   }}
-                  className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-md transition-colors"
+                  style={{ flex: 1 }}
                 >
                   Cancel
-                </button>
+                </Button>
               </div>
             </form>
-          </div>
-        </div>
+          </ModalContent>
+        </ModalOverlay>
       )}
 
       {/* Song Details Modal */}
       {currentSong && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-96 max-w-full mx-4 shadow-2xl border border-gray-200">
-            <h3 className="text-xl font-bold mb-4 text-gray-800">
+        <ModalOverlay>
+          <ModalContent style={{ padding: "32px" }}>
+            <h3
+              style={{
+                fontSize: "24px",
+                fontWeight: "700",
+                color: "#1e293b",
+                margin: "0 0 24px 0",
+              }}
+            >
               Song Details
             </h3>
-            <div className="space-y-3">
-              <div>
-                <span className="font-medium text-gray-700">Title:</span>
-                <span className="ml-2 text-gray-900">{currentSong.title}</span>
+
+            <div style={{ marginBottom: "24px" }}>
+              <div style={{ marginBottom: "16px" }}>
+                <span
+                  style={{
+                    fontWeight: "500",
+                    color: "#374151",
+                  }}
+                >
+                  Title:
+                </span>
+                <span
+                  style={{
+                    marginLeft: "8px",
+                    color: "#1e293b",
+                  }}
+                >
+                  {currentSong.title}
+                </span>
               </div>
-              <div>
-                <span className="font-medium text-gray-700">Artist:</span>
-                <span className="ml-2 text-gray-900">{currentSong.artist}</span>
+
+              <div style={{ marginBottom: "16px" }}>
+                <span
+                  style={{
+                    fontWeight: "500",
+                    color: "#374151",
+                  }}
+                >
+                  Artist:
+                </span>
+                <span
+                  style={{
+                    marginLeft: "8px",
+                    color: "#1e293b",
+                  }}
+                >
+                  {currentSong.artist}
+                </span>
               </div>
-              <div>
-                <span className="font-medium text-gray-700">Type:</span>
-                <span className="ml-2 text-gray-900 capitalize">
+
+              <div style={{ marginBottom: "16px" }}>
+                <span
+                  style={{
+                    fontWeight: "500",
+                    color: "#374151",
+                  }}
+                >
+                  Type:
+                </span>
+                <span
+                  style={{
+                    marginLeft: "8px",
+                    color: "#1e293b",
+                    textTransform: "capitalize",
+                  }}
+                >
                   {currentSong.songType}
                 </span>
               </div>
-              <div>
-                <span className="font-medium text-gray-700">Genre:</span>
-                <span className="ml-2 text-gray-900">{currentSong.genre}</span>
+
+              <div style={{ marginBottom: "16px" }}>
+                <span
+                  style={{
+                    fontWeight: "500",
+                    color: "#374151",
+                  }}
+                >
+                  Genre:
+                </span>
+                <span
+                  style={{
+                    marginLeft: "8px",
+                    color: "#1e293b",
+                  }}
+                >
+                  {currentSong.genre}
+                </span>
               </div>
+
               <div>
-                <span className="font-medium text-gray-700">Created:</span>
-                <span className="ml-2 text-gray-900">
+                <span
+                  style={{
+                    fontWeight: "500",
+                    color: "#374151",
+                  }}
+                >
+                  Created:
+                </span>
+                <span
+                  style={{
+                    marginLeft: "8px",
+                    color: "#1e293b",
+                  }}
+                >
                   {new Date(currentSong.createdAt).toLocaleDateString()}
                 </span>
               </div>
             </div>
-            <button
+
+            <Button
+              variant="secondary"
               onClick={handleCloseModal}
-              className="mt-6 w-full bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-md transition-colors"
+              style={{ width: "100%" }}
             >
               Close
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Songs List */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {list.map((song: Song) => (
-          <div
-            key={song._id}
-            className="bg-white rounded-lg shadow-md p-4 border border-gray-200 hover:shadow-lg transition-all duration-200 hover:scale-105"
-          >
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">
-              {song.title}
-            </h3>
-            <p className="text-gray-600 mb-2">
-              <span className="font-medium">Artist:</span> {song.artist}
-            </p>
-            <p className="text-gray-600 mb-2">
-              <span className="font-medium">Genre:</span> {song.genre}
-            </p>
-            <p className="text-gray-600 mb-4">
-              <span className="font-medium">Type:</span>
-              <span className="ml-1 capitalize bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm">
-                {song.songType}
-              </span>
-            </p>
-            <div className="flex gap-2">
-              <button
-                onClick={() => handleViewSong(song)}
-                className="flex-1 bg-green-500 hover:bg-green-600 text-white py-1 px-3 rounded text-sm transition-colors"
-              >
-                View
-              </button>
-              <button
-                onClick={() => handleEditSong(song)}
-                className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-3 rounded text-sm transition-colors"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => handleDeleteSong(song._id)}
-                disabled={loading.delete}
-                className="flex-1 bg-red-500 hover:bg-red-600 disabled:bg-red-300 text-white py-1 px-3 rounded text-sm transition-colors"
-              >
-                {loading.delete ? "..." : "Delete"}
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {list.length === 0 && !loading.fetch && (
-        <div className="text-center py-12">
-          <p className="text-gray-500 text-lg">
-            No songs found. Add your first song!
-          </p>
-        </div>
+            </Button>
+          </ModalContent>
+        </ModalOverlay>
       )}
     </div>
   );
