@@ -59,5 +59,7 @@ export interface SongsState {
     limit: number;
     total: number;
     totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
   } | null;
 }

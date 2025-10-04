@@ -3,16 +3,9 @@ import { Provider } from "react-redux";
 import { ThemeProvider } from "@emotion/react";
 import { css } from "@emotion/css";
 import store from "./store";
-import SongList from "./features/songs/songslist";
-import StatsDashboard from "./features/stats/StatsDashboard";
+import { SongsList, StatsDashboard } from "./pages";
 import {
   AppContainer,
-  Header,
-  HeaderContent,
-  Logo,
-  LogoIcon,
-  Title,
-  Subtitle,
   MainContent,
   Footer,
   Navigation,
@@ -142,22 +135,10 @@ function App() {
       <ThemeProvider theme={theme}>
         <div className={globalStyles}>
           <AppContainer>
-            <Header>
-              <HeaderContent>
-                <Logo>
-                  <LogoIcon>🎵</LogoIcon>
-                  <div>
-                    <Title>Music Manager</Title>
-                    <Subtitle>Manage your song collection with style</Subtitle>
-                  </div>
-                </Logo>
-              </HeaderContent>
-            </Header>
-
             <MainContent>
               <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
 
-              {activeTab === "songs" && <SongList />}
+              {activeTab === "songs" && <SongsList />}
               {activeTab === "stats" && <StatsDashboard />}
             </MainContent>
 

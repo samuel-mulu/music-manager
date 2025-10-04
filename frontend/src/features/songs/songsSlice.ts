@@ -34,7 +34,7 @@ const songsSlice = createSlice({
     },
 
     // Fetch songs
-    fetchSongsRequest: (state) => {
+    fetchSongsRequest: (state, action: PayloadAction<any>) => {
       state.loading.fetch = true;
       state.error = null;
     },
@@ -122,6 +122,14 @@ const songsSlice = createSlice({
       state.loading.fetch = false;
       state.error = action.payload;
     },
+
+    // Socket connection actions
+    connectSocket: (state) => {
+      // Socket connection is handled in saga
+    },
+    disconnectSocket: (state) => {
+      // Socket disconnection is handled in saga
+    },
   },
 });
 
@@ -143,6 +151,8 @@ export const {
   getSongByIdRequest,
   getSongByIdSuccess,
   getSongByIdFailure,
+  connectSocket,
+  disconnectSocket,
 } = songsSlice.actions;
 
 export default songsSlice.reducer;

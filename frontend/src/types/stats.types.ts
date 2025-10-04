@@ -9,18 +9,33 @@ export interface SongStats {
     albumSongs: number;
   };
   distribution: {
-    songsPerGenre: GenreStats[];
-    songsPerArtist: ArtistStats[];
-    songsPerType: TypeStats[];
+    songsPerGenre: Array<{
+      _id: string;
+      totalCount: number;
+      singleCount: number;
+      albumCount: number;
+      genre: string;
+    }>;
+    songsPerArtist: Array<{
+      _id: string;
+      songCount: number;
+      singleCount: number;
+      albumCount: number;
+      artist: string;
+    }>;
+    songsPerType: Array<{
+      _id: string | null;
+      count: number;
+    }>;
   };
-  insights: {
+  insights?: {
     topGenre: { genre: string; totalCount: number };
     topArtist: { artist: string; songCount: number };
     averageSongsPerArtist: number;
     averageSongsPerGenre: number;
     recentActivity: ActivityStats[];
   };
-  metadata: {
+  metadata?: {
     generatedAt: string;
     dataRange: {
       from: { createdAt: string } | null;

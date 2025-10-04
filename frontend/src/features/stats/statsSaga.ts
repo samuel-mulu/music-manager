@@ -14,18 +14,23 @@ function getErrorMessage(error: any): string {
 }
 
 // Fetch statistics saga
-function* fetchStatsSaga() {
+function* fetchStatsSaga(): Generator<any, void, any> {
   try {
-    console.log("📊 Fetching statistics...");
-    const response: { data: SongStats } = yield call(statsApi.getStats);
+    const response: any = yield call(statsApi.getStats);
 
-    console.log("📊 Statistics fetched successfully:", response.data);
+    // Extract the actual data from the response
+    // Based on your backend response: { success: true, data: { totals: {...}, distribution: { songsPerGenre: [...], ... } } }
+    const statsData = response.data;
+
+    if (!statsData) {
+      throw new Error("No data received from statistics API");
+    }
+
     yield put({
       type: "stats/fetchStatsSuccess",
-      payload: response.data,
+      payload: statsData,
     });
   } catch (error: any) {
-    console.error("📊 Error fetching statistics:", error);
     const errorMessage = getErrorMessage(error);
 
     yield put({
@@ -36,21 +41,17 @@ function* fetchStatsSaga() {
 }
 
 // Fetch recent songs saga
-function* fetchRecentSongsSaga() {
+function* fetchRecentSongsSaga(): Generator<any, void, any> {
   try {
-    console.log("🎵 Fetching recent songs...");
     const response: { data: RecentSong[] } = yield call(
       statsApi.getRecentSongs
     );
-
-    console.log("🎵 Recent songs fetched successfully:", response.data);
 
     yield put({
       type: "stats/fetchRecentSongsSuccess",
       payload: response.data,
     });
   } catch (error: any) {
-    console.error("🎵 Error fetching recent songs:", error);
     const errorMessage = getErrorMessage(error);
 
     yield put({
@@ -61,7 +62,7 @@ function* fetchRecentSongsSaga() {
 }
 
 // Root stats saga
-export default function* statsSaga() {
+export default function* statsSaga(): Generator<any, void, any> {
   yield takeEvery("stats/fetchStatsRequest", fetchStatsSaga);
   yield takeEvery("stats/fetchRecentSongsRequest", fetchRecentSongsSaga);
 }
