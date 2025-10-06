@@ -33,8 +33,11 @@ export const SongForm: React.FC<SongFormProps> = ({
   if (!isOpen) return null;
 
   return (
-    <ModalOverlay>
-      <ModalContent style={{ padding: "24px" }}>
+    <ModalOverlay onClick={onCancel}>
+      <ModalContent
+        style={{ padding: "24px" }}
+        onClick={(e) => e.stopPropagation()}
+      >
         <h3
           style={{
             fontSize: "20px",

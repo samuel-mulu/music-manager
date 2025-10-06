@@ -14,8 +14,11 @@ export const SongDetailsModal: React.FC<SongDetailsModalProps> = ({
   if (!song) return null;
 
   return (
-    <ModalOverlay>
-      <ModalContent style={{ padding: "24px" }}>
+    <ModalOverlay onClick={onClose}>
+      <ModalContent
+        style={{ padding: "24px" }}
+        onClick={(e) => e.stopPropagation()}
+      >
         <h3
           style={{
             fontSize: "20px",

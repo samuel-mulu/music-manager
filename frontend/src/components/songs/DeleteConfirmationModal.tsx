@@ -16,8 +16,11 @@ export const DeleteConfirmationModal: React.FC<
   if (!isOpen || !song) return null;
 
   return (
-    <ModalOverlay>
-      <ModalContent style={{ padding: "24px", maxWidth: "400px" }}>
+    <ModalOverlay onClick={onCancel}>
+      <ModalContent
+        style={{ padding: "24px", maxWidth: "400px" }}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div
           style={{
             textAlign: "center",
