@@ -66,7 +66,7 @@ export default function SongsList() {
   const [selectedGenre, setSelectedGenre] = useState("all");
   const [sortBy, setSortBy] = useState("title");
   const [currentPage, setCurrentPage] = useState(1);
-  const [isSocketConnected, setIsSocketConnected] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
   const itemsPerPage = 6;
 
   useEffect(() => {
@@ -92,23 +92,11 @@ export default function SongsList() {
     // Connect to Socket.IO for real-time updates
     dispatch(connectSocket());
 
-    // Monitor socket connection status
-    const checkSocketStatus = () => {
-      setIsSocketConnected(socketService.isSocketConnected());
-    };
-
-    // Check initial status
-    checkSocketStatus();
-
-    // Monitor socket connection status
-    const interval = setInterval(checkSocketStatus, 1000);
-
     // Cleanup: disconnect socket when component unmounts
     return () => {
-      clearInterval(interval);
       dispatch(disconnectSocket());
     };
-  }, [dispatch, currentPage, sortBy, selectedGenre, selectedAlbum]);
+  }, [dispatch, currentPage, sortBy, selectedGenre, selectedAlbum, searchTerm]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -204,23 +192,7 @@ export default function SongsList() {
   const handleSortChange = (newSort: string) => {
     setSortBy(newSort);
     setCurrentPage(1); // Reset to first page when sorting changes
-    dispatch(
-      fetchSongsRequest({
-        page: 1,
-        limit: itemsPerPage,
-        search: searchTerm,
-        genre: selectedGenre !== "all" ? selectedGenre : undefined,
-        songType: selectedAlbum !== "all" ? selectedAlbum : undefined,
-        sort:
-          newSort === "title"
-            ? "title"
-            : newSort === "artist"
-            ? "artist"
-            : newSort === "genre"
-            ? "genre"
-            : "-createdAt",
-      })
-    );
+    // Let the main useEffect handle the API call
   };
 
   // Handle search with debouncing
@@ -233,50 +205,24 @@ export default function SongsList() {
   const handleGenreChange = (genre: string) => {
     setSelectedGenre(genre);
     setCurrentPage(1);
-    dispatch(
-      fetchSongsRequest({
-        page: 1,
-        limit: itemsPerPage,
-        search: searchTerm,
-        genre: genre !== "all" ? genre : undefined,
-        songType: selectedAlbum !== "all" ? selectedAlbum : undefined,
-        sort:
-          sortBy === "title"
-            ? "title"
-            : sortBy === "artist"
-            ? "artist"
-            : sortBy === "genre"
-            ? "genre"
-            : "-createdAt",
-      })
-    );
+    // Let the main useEffect handle the API call
   };
 
   // Handle song type filter change
   const handleSongTypeChange = (songType: string) => {
     setSelectedAlbum(songType);
     setCurrentPage(1);
-    dispatch(
-      fetchSongsRequest({
-        page: 1,
-        limit: itemsPerPage,
-        search: searchTerm,
-        genre: selectedGenre !== "all" ? selectedGenre : undefined,
-        songType: songType !== "all" ? songType : undefined,
-        sort:
-          sortBy === "title"
-            ? "title"
-            : sortBy === "artist"
-            ? "artist"
-            : sortBy === "genre"
-            ? "genre"
-            : "-createdAt",
-      })
-    );
+    // Let the main useEffect handle the API call
   };
 
-  // Debounced search effect
+  // Debounced search effect - only for search term changes
   useEffect(() => {
+    if (searchTerm.trim() === "") {
+      setIsSearching(false);
+      return;
+    }
+
+    setIsSearching(true);
     const timeoutId = setTimeout(() => {
       setCurrentPage(1); // Reset to first page when searching
       dispatch(
@@ -296,17 +242,14 @@ export default function SongsList() {
               : "-createdAt",
         })
       );
-    }, 500); // Wait 500ms after user stops typing
+      setIsSearching(false);
+    }, 800); // Increased to 800ms for better performance
 
-    return () => clearTimeout(timeoutId);
-  }, [
-    searchTerm,
-    dispatch,
-    sortBy,
-    itemsPerPage,
-    selectedGenre,
-    selectedAlbum,
-  ]);
+    return () => {
+      clearTimeout(timeoutId);
+      setIsSearching(false);
+    };
+  }, [searchTerm]); // Only trigger on search term changes
 
   // Use server-side data directly (no client-side filtering/sorting)
   const displaySongs = list;
@@ -390,42 +333,6 @@ export default function SongsList() {
               >
                 Filters & Search
               </h3>
-
-              {/* Connection Status */}
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  padding: "4px 8px",
-                  borderRadius: "6px",
-                  backgroundColor: isSocketConnected ? "#f0fdf4" : "#fef2f2",
-                  border: `1px solid ${
-                    isSocketConnected ? "#bbf7d0" : "#fecaca"
-                  }`,
-                }}
-              >
-                <div
-                  style={{
-                    width: "6px",
-                    height: "6px",
-                    borderRadius: "50%",
-                    backgroundColor: isSocketConnected ? "#22c55e" : "#ef4444",
-                    animation: isSocketConnected ? "pulse 2s infinite" : "none",
-                  }}
-                />
-                <span
-                  style={{
-                    fontSize: "10px",
-                    fontWeight: "600",
-                    color: isSocketConnected ? "#16a34a" : "#dc2626",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.3px",
-                  }}
-                >
-                  {isSocketConnected ? "Live" : "Offline"}
-                </span>
-              </div>
             </div>
 
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -488,12 +395,29 @@ export default function SongsList() {
                   onChange={(e) => handleSearch(e.target.value)}
                   style={{
                     paddingLeft: "32px",
+                    paddingRight: isSearching ? "32px" : "12px",
                     borderRadius: "6px",
                     border: "1px solid #d1d5db",
                     fontSize: "13px",
                     height: "36px",
                   }}
                 />
+                {isSearching && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      right: "8px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      width: "16px",
+                      height: "16px",
+                      border: "2px solid #e5e7eb",
+                      borderTop: "2px solid #3b82f6",
+                      borderRadius: "50%",
+                      animation: "spin 1s linear infinite",
+                    }}
+                  />
+                )}
                 <div
                   style={{
                     position: "absolute",
