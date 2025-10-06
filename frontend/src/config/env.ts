@@ -5,14 +5,15 @@ const DEVELOPMENT_BACKEND_URL = "http://localhost:5000";
 // Determine the API URL based on environment
 function getApiUrl(): string {
   // Check if we're running on Vercel (production deployment)
-  const isVercelDeployment = window.location.hostname.includes('vercel.app') || 
-                            window.location.hostname.includes('vercel.com');
-  
+  const isVercelDeployment =
+    window.location.hostname.includes("vercel.app") ||
+    window.location.hostname.includes("vercel.com");
+
   // If we're in production or on Vercel, always use production backend
-  if (process.env.NODE_ENV === 'production' || isVercelDeployment) {
+  if (process.env.NODE_ENV === "production" || isVercelDeployment) {
     return PRODUCTION_BACKEND_URL;
   }
-  
+
   // For development, use environment variable or fallback to localhost
   return process.env.REACT_APP_BACKEND_URL || DEVELOPMENT_BACKEND_URL;
 }
@@ -43,5 +44,9 @@ if (process.env.NODE_ENV === "production") {
   console.log("🌍 Environment:", process.env.NODE_ENV);
   console.log("🔧 REACT_APP_BACKEND_URL:", process.env.REACT_APP_BACKEND_URL);
   console.log("🌐 Hostname:", window.location.hostname);
-  console.log("🚀 Is Vercel deployment:", window.location.hostname.includes('vercel.app') || window.location.hostname.includes('vercel.com'));
+  console.log(
+    "🚀 Is Vercel deployment:",
+    window.location.hostname.includes("vercel.app") ||
+      window.location.hostname.includes("vercel.com")
+  );
 }
