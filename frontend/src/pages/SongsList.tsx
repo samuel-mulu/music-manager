@@ -68,9 +68,28 @@ export default function SongsList() {
   const [selectedGenre, setSelectedGenre] = useState("all");
   const [selectedAlbumName, setSelectedAlbumName] = useState("all");
   const [sortBy, setSortBy] = useState("title");
+  const [allSongsForFilters, setAllSongsForFilters] = useState<Song[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isSearching, setIsSearching] = useState(false);
   const itemsPerPage = 6;
+
+  // Fetch all songs for filter options (without pagination/filters)
+  useEffect(() => {
+    const fetchAllSongsForFilters = async () => {
+      try {
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000'}/api/v1/songs?limit=1000`);
+        const data = await response.json();
+        if (data.success) {
+          setAllSongsForFilters(data.data);
+          console.log("📊 Fetched all songs for filters:", data.data.length);
+        }
+      } catch (error) {
+        console.error('Failed to fetch all songs for filters:', error);
+      }
+    };
+    
+    fetchAllSongsForFilters();
+  }, []);
 
   // Main effect for fetching songs
   useEffect(() => {
@@ -342,21 +361,23 @@ export default function SongsList() {
   };
 
   // Get unique values for filters - we need to get these from all songs, not just filtered ones
-  // For now, we'll use the current list, but ideally this should come from a separate API call
-  // or be stored in the Redux state to avoid filtering issues
-  const uniqueGenres = Array.from(new Set(list.map((song) => song.genre)));
+  // Use all songs for filter options to ensure consistent filter options
+  const uniqueGenres = Array.from(new Set(allSongsForFilters.map((song) => song.genre))).sort();
   const uniqueSongTypes = ["single", "album"]; // Fixed options for song types
+  
+  // Fix: Use all songs for filter options, not just current page
   const uniqueAlbumNames = Array.from(
     new Set(
-      list
-        .filter((song) => song.songType === "album" && song.album)
-        .map((song) => song.album!)
+      allSongsForFilters
+        .filter((song) => song.songType === "album" && song.album && song.album.trim() !== "")
+        .map((song) => song.album!.trim())
     )
-  );
+  ).sort();
 
   // Debug logging
   console.log("🔍 Album Filter Debug:", {
     totalSongs: list.length,
+    allSongsForFilters: allSongsForFilters.length,
     albumSongs: list.filter((song) => song.songType === "album").length,
     albumSongsWithNames: list.filter(
       (song) => song.songType === "album" && song.album
@@ -364,7 +385,7 @@ export default function SongsList() {
     uniqueAlbumNames,
     selectedSongType,
     shouldShowFilter: selectedSongType === "album",
-    sampleAlbumSongs: list
+    sampleAlbumSongs: allSongsForFilters
       .filter((song) => song.songType === "album")
       .slice(0, 3)
       .map((song) => ({

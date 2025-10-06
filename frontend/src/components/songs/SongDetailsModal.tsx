@@ -13,6 +13,10 @@ export const SongDetailsModal: React.FC<SongDetailsModalProps> = ({
 }) => {
   if (!song) return null;
 
+  // Debug logging for song data
+  console.log("🎵 Song Details Modal - Song data:", song);
+  console.log("🎵 Song Details Modal - Environment:", process.env.NODE_ENV);
+
   return (
     <ModalOverlay onClick={onClose}>
       <ModalContent
