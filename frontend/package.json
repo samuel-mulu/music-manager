@@ -33,7 +33,7 @@
     "build:production": "GENERATE_SOURCEMAP=false react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "vercel-build": "npm run build:production"
+    "vercel-build": "REACT_APP_BACKEND_URL=https://music-manager-1.onrender.com npm run build:production"
   },
   "eslintConfig": {
     "extends": [

@@ -34,14 +34,21 @@ export const API_URL = config.API_URL; // Correct for Create React App
       "use": "@vercel/static-build",
       "config": {
         "distDir": "build"
-      },
-      "env": {
-        "REACT_APP_BACKEND_URL": "https://music-manager-1.onrender.com"
       }
     }
   ],
   "env": {
     "REACT_APP_BACKEND_URL": "https://music-manager-1.onrender.com"
+  }
+}
+```
+
+**File:** `package.json`
+
+```json
+{
+  "scripts": {
+    "vercel-build": "REACT_APP_BACKEND_URL=https://music-manager-1.onrender.com npm run build:production"
   }
 }
 ```
