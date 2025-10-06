@@ -63,6 +63,7 @@ export default function SongsList() {
 
   // Filter and search states
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchType, setSearchType] = useState("title"); // Default to title search
   const [selectedSongType, setSelectedSongType] = useState("all");
   const [selectedGenre, setSelectedGenre] = useState("all");
   const [selectedAlbumName, setSelectedAlbumName] = useState("all");
@@ -73,24 +74,26 @@ export default function SongsList() {
 
   // Main effect for fetching songs
   useEffect(() => {
-    dispatch(
-      fetchSongsRequest({
-        page: currentPage,
-        limit: itemsPerPage,
-        search: searchTerm,
-        genre: selectedGenre !== "all" ? selectedGenre : undefined,
-        songType: selectedSongType !== "all" ? selectedSongType : undefined,
-        album: selectedAlbumName !== "all" ? selectedAlbumName : undefined,
-        sort:
-          sortBy === "title"
-            ? "title"
-            : sortBy === "artist"
-            ? "artist"
-            : sortBy === "genre"
-            ? "genre"
-            : "-createdAt",
-      })
-    );
+    const requestParams = {
+      page: currentPage,
+      limit: itemsPerPage,
+      search: searchTerm,
+      searchType: searchType,
+      genre: selectedGenre !== "all" ? selectedGenre : undefined,
+      songType: selectedSongType !== "all" ? selectedSongType : undefined,
+      album: selectedAlbumName !== "all" ? selectedAlbumName : undefined,
+      sort:
+        sortBy === "title"
+          ? "title"
+          : sortBy === "artist"
+          ? "artist"
+          : sortBy === "genre"
+          ? "genre"
+          : "-createdAt",
+    };
+
+    console.log("🔍 Fetching songs with params:", requestParams);
+    dispatch(fetchSongsRequest(requestParams));
 
     dispatch(connectSocket());
     return () => {
@@ -104,6 +107,7 @@ export default function SongsList() {
     selectedSongType,
     selectedAlbumName,
     searchTerm,
+    searchType,
   ]);
 
   // Debounced search effect
@@ -116,24 +120,26 @@ export default function SongsList() {
     setIsSearching(true);
     const timeoutId = setTimeout(() => {
       setCurrentPage(1);
-      dispatch(
-        fetchSongsRequest({
-          page: 1,
-          limit: itemsPerPage,
-          search: searchTerm,
-          genre: selectedGenre !== "all" ? selectedGenre : undefined,
-          songType: selectedSongType !== "all" ? selectedSongType : undefined,
-          album: selectedAlbumName !== "all" ? selectedAlbumName : undefined,
-          sort:
-            sortBy === "title"
-              ? "title"
-              : sortBy === "artist"
-              ? "artist"
-              : sortBy === "genre"
-              ? "genre"
-              : "-createdAt",
-        })
-      );
+      const searchParams = {
+        page: 1,
+        limit: itemsPerPage,
+        search: searchTerm,
+        searchType: searchType,
+        genre: selectedGenre !== "all" ? selectedGenre : undefined,
+        songType: selectedSongType !== "all" ? selectedSongType : undefined,
+        album: selectedAlbumName !== "all" ? selectedAlbumName : undefined,
+        sort:
+          sortBy === "title"
+            ? "title"
+            : sortBy === "artist"
+            ? "artist"
+            : sortBy === "genre"
+            ? "genre"
+            : "-createdAt",
+      };
+
+      console.log("🔍 Debounced search with params:", searchParams);
+      dispatch(fetchSongsRequest(searchParams));
       setIsSearching(false);
     }, 800);
 
@@ -143,6 +149,7 @@ export default function SongsList() {
     };
   }, [
     searchTerm,
+    searchType,
     dispatch,
     selectedGenre,
     selectedSongType,
@@ -271,6 +278,7 @@ export default function SongsList() {
         page: newPage,
         limit: itemsPerPage,
         search: searchTerm,
+        searchType: searchType,
         genre: selectedGenre !== "all" ? selectedGenre : undefined,
         songType: selectedSongType !== "all" ? selectedSongType : undefined,
         album: selectedAlbumName !== "all" ? selectedAlbumName : undefined,
@@ -295,6 +303,11 @@ export default function SongsList() {
     setSearchTerm(searchTerm);
   };
 
+  const handleSearchTypeChange = (searchType: string) => {
+    setSearchType(searchType);
+    setCurrentPage(1);
+  };
+
   const handleGenreChange = (genre: string) => {
     setSelectedGenre(genre);
     setCurrentPage(1);
@@ -313,6 +326,7 @@ export default function SongsList() {
 
   const clearFilters = () => {
     setSearchTerm("");
+    setSearchType("title");
     setSelectedSongType("all");
     setSelectedGenre("all");
     setSelectedAlbumName("all");
@@ -327,11 +341,11 @@ export default function SongsList() {
     );
   };
 
-  // Get unique values for filters
+  // Get unique values for filters - we need to get these from all songs, not just filtered ones
+  // For now, we'll use the current list, but ideally this should come from a separate API call
+  // or be stored in the Redux state to avoid filtering issues
   const uniqueGenres = Array.from(new Set(list.map((song) => song.genre)));
-  const uniqueSongTypes = Array.from(
-    new Set(list.map((song) => song.songType))
-  );
+  const uniqueSongTypes = ["single", "album"]; // Fixed options for song types
   const uniqueAlbumNames = Array.from(
     new Set(
       list
@@ -390,6 +404,8 @@ export default function SongsList() {
         <FilterSection
           searchTerm={searchTerm}
           onSearchChange={handleSearch}
+          searchType={searchType}
+          onSearchTypeChange={handleSearchTypeChange}
           isSearching={isSearching}
           sortBy={sortBy}
           onSortChange={handleSortChange}

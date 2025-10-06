@@ -7,10 +7,12 @@ export interface SearchOptions {
   genre?: string;
   album?: string;
   search?: string;
+  searchType?: string;
 }
 
 export const buildSearchFilter = (req: Request) => {
-  const { title, artist, songType, genre, album, search } = req.query;
+  const { title, artist, songType, genre, album, search, searchType } =
+    req.query;
   let filter: any = {};
 
   // Exact field matching
@@ -20,14 +22,29 @@ export const buildSearchFilter = (req: Request) => {
   if (genre) filter.genre = { $regex: genre as string, $options: "i" };
   if (album) filter.album = { $regex: album as string, $options: "i" };
 
-  // Global search across multiple fields
+  // Search with specific field targeting - always search by specific field
   if (search) {
-    filter.$or = [
-      { title: { $regex: search as string, $options: "i" } },
-      { artist: { $regex: search as string, $options: "i" } },
-      { genre: { $regex: search as string, $options: "i" } },
-      { album: { $regex: search as string, $options: "i" } },
-    ];
+    const searchTerm = search as string;
+    const type = searchType as string;
+
+    // Always search in the specific field selected
+    switch (type) {
+      case "title":
+        filter.title = { $regex: searchTerm, $options: "i" };
+        break;
+      case "artist":
+        filter.artist = { $regex: searchTerm, $options: "i" };
+        break;
+      case "album":
+        filter.album = { $regex: searchTerm, $options: "i" };
+        break;
+      case "genre":
+        filter.genre = { $regex: searchTerm, $options: "i" };
+        break;
+      default:
+        // Default to title search if no type specified
+        filter.title = { $regex: searchTerm, $options: "i" };
+    }
   }
 
   return filter;

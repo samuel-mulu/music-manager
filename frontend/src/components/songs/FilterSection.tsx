@@ -4,6 +4,8 @@ import { Button, Input, Select } from "../ui";
 interface FilterSectionProps {
   searchTerm: string;
   onSearchChange: (value: string) => void;
+  searchType: string;
+  onSearchTypeChange: (value: string) => void;
   isSearching: boolean;
   sortBy: string;
   onSortChange: (value: string) => void;
@@ -23,6 +25,8 @@ interface FilterSectionProps {
 export const FilterSection: React.FC<FilterSectionProps> = ({
   searchTerm,
   onSearchChange,
+  searchType,
+  onSearchTypeChange,
   isSearching,
   sortBy,
   onSortChange,
@@ -110,7 +114,7 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
           alignItems: "end",
         }}
       >
-        {/* Search Input */}
+        {/* Search Section */}
         <div>
           <label
             style={{
@@ -125,47 +129,76 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
           >
             Search
           </label>
-          <div style={{ position: "relative" }}>
-            <Input
-              placeholder="Search songs, artists, or genres..."
-              value={searchTerm}
-              onChange={(e) => onSearchChange(e.target.value)}
+          <div style={{ display: "flex", gap: "8px" }}>
+            {/* Search Type Dropdown - Now larger */}
+            <Select
+              value={searchType}
+              onChange={(e) => onSearchTypeChange(e.target.value)}
               style={{
-                paddingLeft: "32px",
-                paddingRight: isSearching ? "32px" : "12px",
                 borderRadius: "6px",
                 border: "1px solid #d1d5db",
                 fontSize: "13px",
                 height: "36px",
+                flex: 1,
+                backgroundColor: "#ffffff",
               }}
-            />
-            {isSearching && (
+            >
+              <option value="title">Title</option>
+              <option value="artist">Artist</option>
+              <option value="album">Album</option>
+              <option value="genre">Genre</option>
+            </Select>
+
+            {/* Search Input - Now smaller */}
+            <div
+              style={{
+                position: "relative",
+                minWidth: "200px",
+                maxWidth: "300px",
+              }}
+            >
+              <Input
+                placeholder={`Search by ${searchType}...`}
+                value={searchTerm}
+                onChange={(e) => onSearchChange(e.target.value)}
+                style={{
+                  paddingLeft: "32px",
+                  paddingRight: isSearching ? "32px" : "12px",
+                  borderRadius: "6px",
+                  border: "1px solid #d1d5db",
+                  fontSize: "13px",
+                  height: "36px",
+                  width: "100%",
+                }}
+              />
+              {isSearching && (
+                <div
+                  style={{
+                    position: "absolute",
+                    right: "8px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    width: "16px",
+                    height: "16px",
+                    border: "2px solid #e5e7eb",
+                    borderTop: "2px solid #3b82f6",
+                    borderRadius: "50%",
+                    animation: "spin 1s linear infinite",
+                  }}
+                />
+              )}
               <div
                 style={{
                   position: "absolute",
-                  right: "8px",
+                  left: "10px",
                   top: "50%",
                   transform: "translateY(-50%)",
-                  width: "16px",
-                  height: "16px",
-                  border: "2px solid #e5e7eb",
-                  borderTop: "2px solid #3b82f6",
-                  borderRadius: "50%",
-                  animation: "spin 1s linear infinite",
+                  color: "#9ca3af",
+                  fontSize: "14px",
                 }}
-              />
-            )}
-            <div
-              style={{
-                position: "absolute",
-                left: "10px",
-                top: "50%",
-                transform: "translateY(-50%)",
-                color: "#9ca3af",
-                fontSize: "14px",
-              }}
-            >
-              🔍
+              >
+                🔍
+              </div>
             </div>
           </div>
         </div>
@@ -228,11 +261,8 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
             }}
           >
             <option value="all">All Types</option>
-            {uniqueSongTypes.map((songType) => (
-              <option key={songType} value={songType}>
-                {songType.charAt(0).toUpperCase() + songType.slice(1)}
-              </option>
-            ))}
+            <option value="single">Single</option>
+            <option value="album">Album</option>
           </Select>
         </div>
 
@@ -251,6 +281,16 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
               }}
             >
               Album Name
+              <span
+                style={{
+                  fontSize: "10px",
+                  color: "#6b7280",
+                  fontWeight: "400",
+                  marginLeft: "4px",
+                }}
+              >
+                (filtered by album type)
+              </span>
             </label>
             <Select
               value={selectedAlbumName}
@@ -264,14 +304,14 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
             >
               <option value="all">All Albums</option>
               {uniqueAlbumNames.length > 0 ? (
-                uniqueAlbumNames.map((albumName) => (
+                uniqueAlbumNames.sort().map((albumName) => (
                   <option key={albumName} value={albumName}>
                     {albumName}
                   </option>
                 ))
               ) : (
                 <option value="no-albums" disabled>
-                  No albums available
+                  No albums found
                 </option>
               )}
             </Select>
@@ -304,7 +344,7 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
             }}
           >
             <option value="all">All Genres</option>
-            {uniqueGenres.map((genre) => (
+            {uniqueGenres.sort().map((genre) => (
               <option key={genre} value={genre}>
                 {genre}
               </option>
