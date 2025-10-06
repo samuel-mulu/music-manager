@@ -63,10 +63,16 @@ mongoose
       console.log("🛑 SIGTERM received. Shutting down gracefully...");
       httpServer.close(() => {
         console.log("✅ Process terminated");
-        mongoose.connection.close(false, () => {
-          console.log("✅ MongoDB connection closed");
-          process.exit(0);
-        });
+        mongoose.connection
+          .close()
+          .then(() => {
+            console.log("✅ MongoDB connection closed");
+            process.exit(0);
+          })
+          .catch((err) => {
+            console.error("❌ Error closing MongoDB connection:", err);
+            process.exit(0);
+          });
       });
     });
   })
