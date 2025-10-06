@@ -49,5 +49,5 @@ if (process.env.NODE_ENV === "production") {
     window.location.hostname.includes("vercel.app") ||
       window.location.hostname.includes("vercel.com")
   );
-  console.log("🔄 Build version: 2025-01-06-v2 - Modal fixes applied");
+  console.log("🔄 Build version: 2025-01-06-v3 - Complete modal rebuild");
 }

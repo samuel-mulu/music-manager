@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "../store";
+
+// Version: 2025-01-06-v3 - Force cache bust
 import {
   fetchSongsRequest,
   createSongRequest,
@@ -77,17 +79,21 @@ export default function SongsList() {
   useEffect(() => {
     const fetchAllSongsForFilters = async () => {
       try {
-        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000'}/api/v1/songs?limit=1000`);
+        const response = await fetch(
+          `${
+            process.env.REACT_APP_BACKEND_URL || "http://localhost:5000"
+          }/api/v1/songs?limit=1000`
+        );
         const data = await response.json();
         if (data.success) {
           setAllSongsForFilters(data.data);
           console.log("📊 Fetched all songs for filters:", data.data.length);
         }
       } catch (error) {
-        console.error('Failed to fetch all songs for filters:', error);
+        console.error("Failed to fetch all songs for filters:", error);
       }
     };
-    
+
     fetchAllSongsForFilters();
   }, []);
 
@@ -362,14 +368,19 @@ export default function SongsList() {
 
   // Get unique values for filters - we need to get these from all songs, not just filtered ones
   // Use all songs for filter options to ensure consistent filter options
-  const uniqueGenres = Array.from(new Set(allSongsForFilters.map((song) => song.genre))).sort();
+  const uniqueGenres = Array.from(
+    new Set(allSongsForFilters.map((song) => song.genre))
+  ).sort();
   const uniqueSongTypes = ["single", "album"]; // Fixed options for song types
-  
+
   // Fix: Use all songs for filter options, not just current page
   const uniqueAlbumNames = Array.from(
     new Set(
       allSongsForFilters
-        .filter((song) => song.songType === "album" && song.album && song.album.trim() !== "")
+        .filter(
+          (song) =>
+            song.songType === "album" && song.album && song.album.trim() !== ""
+        )
         .map((song) => song.album!.trim())
     )
   ).sort();

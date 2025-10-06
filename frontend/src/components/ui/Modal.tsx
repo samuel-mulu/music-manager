@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 
 // Professional Modal Components with inline styles for better production compatibility
+// Version: 2025-01-06-v3 - Force cache bust
 export const ModalOverlay: React.FC<{
   children: React.ReactNode;
   onClick?: () => void;

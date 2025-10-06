@@ -2,6 +2,8 @@ import React from "react";
 import { Button, ModalOverlay, ModalContent, Spinner } from "../ui";
 import { Song } from "../../types/song.types";
 
+// Version: 2025-01-06-v3 - Force cache bust
+
 interface DeleteConfirmationModalProps {
   isOpen: boolean;
   song: Song | null;

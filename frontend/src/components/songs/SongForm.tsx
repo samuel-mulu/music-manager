@@ -9,6 +9,8 @@ import {
 } from "../ui";
 import { CreateSongRequest } from "../../types/song.types";
 
+// Version: 2025-01-06-v3 - Force cache bust
+
 interface SongFormProps {
   isOpen: boolean;
   isEditing: boolean;
