@@ -1,18 +1,22 @@
 // Environment configuration
 export const config = {
-  // API Configuration
-  API_URL: process.env.REACT_APP_BACKEND_URL || "http://localhost:5000",
+  // API Configuration - Production backend deployed on Render
+  API_URL:
+    process.env.REACT_APP_BACKEND_URL || "https://music-manager-1.onrender.com",
 
   // Alternative for Vite (if available)
   get VITE_API_URL() {
     try {
       if (typeof import.meta !== "undefined" && import.meta.env) {
-        return import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+        return (
+          import.meta.env.VITE_BACKEND_URL ||
+          "https://music-manager-1.onrender.com"
+        );
       }
     } catch (error) {
       console.warn("Vite environment not available, using fallback");
     }
-    return "http://localhost:5000";
+    return "https://music-manager-1.onrender.com";
   },
 };
 

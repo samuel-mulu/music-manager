@@ -1,6 +1,7 @@
 {
-  "name": "frontend",
-  "version": "0.1.0",
+  "name": "addis-software-frontend",
+  "version": "1.0.0",
+  "description": "Music Management System Frontend - Built with React, Redux, and Socket.IO",
   "private": true,
   "dependencies": {
     "@emotion/css": "^11.13.5",
@@ -29,15 +30,10 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "build:prod": "GENERATE_SOURCEMAP=false react-scripts build",
+    "build:production": "GENERATE_SOURCEMAP=false react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "preview": "serve -s build -l 3000",
-    "analyze": "npm run build && npx serve -s build -l 3000",
-    "docker:build": "docker build -t addis-software-frontend .",
-    "docker:run": "docker run -p 3000:80 addis-software-frontend",
-    "docker:stop": "docker stop $(docker ps -q --filter ancestor=addis-software-frontend)",
-    "deploy:render": "npm run build:prod && echo 'Build completed. Push to GitHub to trigger Render deployment.'"
+    "vercel-build": "npm run build:production"
   },
   "eslintConfig": {
     "extends": [

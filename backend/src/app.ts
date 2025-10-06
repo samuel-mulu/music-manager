@@ -17,10 +17,23 @@ const corsOptions = {
       process.env.FRONTEND_URL,
       "http://localhost:3000",
       "http://localhost:3001",
-      "https://addis-software-frontend.onrender.com", // Update with your frontend URL
+      "https://music-manager-1.onrender.com",
+      // Vercel domains (wildcard for flexibility)
+      /^https:\/\/.*\.vercel\.app$/,
+      /^https:\/\/.*\.vercel\.com$/,
     ];
 
-    if (allowedOrigins.includes(origin)) {
+    // Check if origin matches any allowed origin (string or regex)
+    const isAllowed = allowedOrigins.some((allowedOrigin) => {
+      if (typeof allowedOrigin === "string") {
+        return allowedOrigin === origin;
+      } else if (allowedOrigin instanceof RegExp) {
+        return allowedOrigin.test(origin);
+      }
+      return false;
+    });
+
+    if (isAllowed) {
       callback(null, true);
     } else {
       callback(new Error("Not allowed by CORS"));
