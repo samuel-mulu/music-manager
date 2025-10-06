@@ -30,10 +30,10 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "build:production": "GENERATE_SOURCEMAP=false react-scripts build",
+    "build:production": "cross-env GENERATE_SOURCEMAP=false react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "vercel-build": "REACT_APP_BACKEND_URL=https://music-manager-1.onrender.com npm run build:production"
+    "vercel-build": "cross-env REACT_APP_BACKEND_URL=https://music-manager-1.onrender.com GENERATE_SOURCEMAP=false react-scripts build"
   },
   "eslintConfig": {
     "extends": [
@@ -52,5 +52,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "cross-env": "^10.1.0"
   }
 }
