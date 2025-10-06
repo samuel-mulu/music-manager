@@ -1,6 +1,6 @@
 import { call, put, takeEvery } from "redux-saga/effects";
 import { statsApi } from "./statsApi";
-import { SongStats, RecentSong } from "../../types/stats.types";
+import { RecentSong } from "../../types/stats.types";
 
 // Helper function to get error message
 function getErrorMessage(error: any): string {

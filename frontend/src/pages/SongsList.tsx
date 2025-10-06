@@ -14,7 +14,6 @@ import {
 import { Song, CreateSongRequest } from "../types/song.types";
 import {
   Button,
-  Card,
   Input,
   Select,
   Badge,
@@ -23,7 +22,6 @@ import {
   Spinner,
   Alert,
 } from "../components/ui";
-import socketService from "../services/socketService";
 
 export default function SongsList() {
   const dispatch = useDispatch<AppDispatch>();

@@ -10,7 +10,6 @@
     "@reduxjs/toolkit": "^2.9.0",
     "@styled-system/css": "^5.1.5",
     "@testing-library/dom": "^10.4.1",
-    "@testing-library/jest-dom": "^6.9.0",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^27.5.2",
@@ -54,5 +53,7 @@
       "last 1 safari version"
     ]
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1"
+  }
 }

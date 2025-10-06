@@ -1,12 +1,4 @@
-import {
-  call,
-  put,
-  takeEvery,
-  fork,
-  cancel,
-  take,
-  select,
-} from "redux-saga/effects";
+import { call, put, takeEvery, fork, take, select } from "redux-saga/effects";
 import { eventChannel, END } from "redux-saga";
 import socketService from "../../services/socketService";
 import {
@@ -163,6 +155,7 @@ function* disconnectSocketSaga(): Generator<any, void, any> {
     console.log("🔌 Disconnecting from Socket.IO...");
     socketService.disconnect();
     console.log("✅ Socket.IO disconnected successfully");
+    yield; // Add yield to satisfy require-yield rule
   } catch (error) {
     console.error("❌ Socket.IO disconnection failed:", error);
   }

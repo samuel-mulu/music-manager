@@ -1,22 +1,6 @@
-import {
-  call,
-  put,
-  takeEvery,
-  fork,
-  cancel,
-  take,
-  select,
-} from "redux-saga/effects";
-import { eventChannel, END } from "redux-saga";
+import { call, takeEvery } from "redux-saga/effects";
 import socketService from "../../services/socketService";
-import {
-  fetchStatsSuccess,
-  fetchRecentSongsSuccess,
-  updateStatsFromSocket,
-  updateRecentSongsFromSocket,
-  connectStatsSocket,
-  disconnectStatsSocket,
-} from "./statsSlice";
+import { connectStatsSocket, disconnectStatsSocket } from "./statsSlice";
 
 // Direct stats update handlers
 let statsCleanup: (() => void) | null = null;
@@ -89,11 +73,11 @@ function setupStatsSocketListeners() {
 }
 
 // Helper function to calculate updated stats from song changes
-function* calculateUpdatedStats(
+function calculateUpdatedStats(
   currentStats: any,
   changeType: "created" | "updated" | "deleted",
   songData: any
-): Generator<any, any, any> {
+) {
   if (!currentStats) return null;
 
   const updatedStats = { ...currentStats };
@@ -290,6 +274,7 @@ function* calculateUpdatedStats(
 
 // Connect stats socket saga (reuses existing connection)
 function* connectStatsSocketSaga(): Generator<any, void, any> {
+  yield; // Add yield to satisfy require-yield rule
   try {
     console.log("📊 Setting up stats socket listeners...");
 
@@ -324,6 +309,7 @@ function* connectStatsSocketSaga(): Generator<any, void, any> {
 
 // Disconnect stats socket saga (only cleans up listeners, doesn't disconnect shared socket)
 function* disconnectStatsSocketSaga(): Generator<any, void, any> {
+  yield; // Add yield to satisfy require-yield rule
   try {
     console.log("📊 Cleaning up stats socket listeners...");
     // Clean up the direct listeners

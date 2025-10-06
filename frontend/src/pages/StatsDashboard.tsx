@@ -10,12 +10,7 @@ import {
   disconnectStatsSocket,
   fetchStatsRequestSilent,
 } from "../features/stats/statsSlice";
-import {
-  SongStats,
-  GenreStats,
-  ArtistStats,
-  RecentSong,
-} from "../types/stats.types";
+import { SongStats, RecentSong } from "../types/stats.types";
 import { Card, Button, Spinner, Alert, Badge } from "../components/ui";
 
 // Statistics Card Component

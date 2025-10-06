@@ -1,4 +1,4 @@
-import { call, put, takeLatest, select } from "redux-saga/effects";
+import { call, put, takeLatest } from "redux-saga/effects";
 import { songsApi } from "./songsApi";
 import {
   fetchSongsRequest,
@@ -17,7 +17,6 @@ import {
   getSongByIdSuccess,
   getSongByIdFailure,
 } from "./songsSlice";
-import { RootState } from "../../store";
 
 // Helper function to extract error message
 function getErrorMessage(error: any): string {
