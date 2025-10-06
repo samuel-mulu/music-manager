@@ -130,13 +130,26 @@ const globalStyles = css`
 function App() {
   const [activeTab, setActiveTab] = useState<"songs" | "stats">("songs");
 
+  const handleTabChange = (tab: "songs" | "stats") => {
+    setActiveTab(tab);
+
+    // Trigger stats refresh when switching to stats tab
+    if (tab === "stats") {
+      console.log("📊 Switching to stats tab, triggering refresh");
+      // Dispatch a custom event that StatsDashboard will listen to
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent("stats-tab-activated"));
+      }, 100);
+    }
+  };
+
   return (
     <Provider store={store}>
       <ThemeProvider theme={theme}>
         <div className={globalStyles}>
           <AppContainer>
             <MainContent>
-              <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
+              <Navigation activeTab={activeTab} onTabChange={handleTabChange} />
 
               {activeTab === "songs" && <SongsList />}
               {activeTab === "stats" && <StatsDashboard />}

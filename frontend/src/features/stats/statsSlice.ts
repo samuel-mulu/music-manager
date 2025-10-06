@@ -30,6 +30,17 @@ export const fetchRecentSongsFailure = (error: string) => ({
   payload: error,
 });
 
+// Socket connection actions
+export const connectStatsSocket = () => ({
+  type: "stats/connectStatsSocket",
+});
+
+export const disconnectStatsSocket = () => ({
+  type: "stats/disconnectStatsSocket",
+});
+
+// Socket-based updates (no loading states) - these will be exported from slice actions
+
 // Initial state
 const initialState: StatsState = {
   data: null,
@@ -77,6 +88,23 @@ const statsSlice = createSlice({
       // Don't set error for recent songs to avoid blocking main stats
       console.error("Failed to fetch recent songs:", action.payload);
     },
+    // Socket-based updates (no loading states)
+    updateStatsFromSocket: (state, action: PayloadAction<SongStats>) => {
+      state.data = action.payload;
+      state.lastUpdated = new Date().toISOString();
+      // Don't set loading to false or clear errors - this is a silent update
+    },
+    updateRecentSongsFromSocket: (
+      state,
+      action: PayloadAction<RecentSong[]>
+    ) => {
+      state.recentSongs = action.payload;
+      // Don't set loading or errors - this is a silent update
+    },
+    fetchStatsRequestSilent: (state) => {
+      // Silent fetch - don't set loading to true
+      state.error = null;
+    },
   },
 });
 
@@ -90,6 +118,9 @@ export const {
   fetchRecentSongsRequest: fetchRecentSongsRequestAction,
   fetchRecentSongsSuccess: fetchRecentSongsSuccessAction,
   fetchRecentSongsFailure: fetchRecentSongsFailureAction,
+  updateStatsFromSocket,
+  updateRecentSongsFromSocket,
+  fetchStatsRequestSilent,
 } = statsSlice.actions;
 
 // Export reducer

@@ -69,22 +69,25 @@ class SocketService {
     }
   }
 
-  // Listen for song events
+  // Listen for song events (supports multiple listeners)
   onSongCreated(callback: (data: any) => void): void {
     if (this.socket) {
       this.socket.on("song-created", callback);
+      console.log("🎵 Registered song-created listener");
     }
   }
 
   onSongUpdated(callback: (data: any) => void): void {
     if (this.socket) {
       this.socket.on("song-updated", callback);
+      console.log("🎵 Registered song-updated listener");
     }
   }
 
   onSongDeleted(callback: (data: any) => void): void {
     if (this.socket) {
       this.socket.on("song-deleted", callback);
+      console.log("🎵 Registered song-deleted listener");
     }
   }
 
@@ -104,6 +107,34 @@ class SocketService {
   offSongDeleted(callback?: (data: any) => void): void {
     if (this.socket) {
       this.socket.off("song-deleted", callback);
+    }
+  }
+
+  // Stats-specific methods
+  joinStatsRoom(): void {
+    if (this.socket) {
+      this.socket.emit("join-stats-room");
+      console.log("📊 Joined stats room");
+    }
+  }
+
+  leaveStatsRoom(): void {
+    if (this.socket) {
+      this.socket.emit("leave-stats-room");
+      console.log("📊 Left stats room");
+    }
+  }
+
+  // Listen for stats events (currently using song events for stats updates)
+  onStatsUpdate(callback: (data: any) => void): void {
+    if (this.socket) {
+      this.socket.on("stats-updated", callback);
+    }
+  }
+
+  offStatsUpdate(callback?: (data: any) => void): void {
+    if (this.socket) {
+      this.socket.off("stats-updated", callback);
     }
   }
 }

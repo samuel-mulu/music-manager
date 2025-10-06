@@ -73,8 +73,30 @@ function* fetchRecentSongsSaga(): Generator<any, void, any> {
   }
 }
 
+// Silent fetch statistics saga (no loading state)
+function* fetchStatsSilentSaga(): Generator<any, void, any> {
+  try {
+    const response: any = yield call(statsApi.getStats);
+    const statsData = response.data;
+
+    if (!statsData) {
+      throw new Error("No data received from statistics API");
+    }
+
+    yield put({
+      type: "stats/fetchStatsSuccess",
+      payload: statsData,
+    });
+  } catch (error: any) {
+    const errorMessage = getErrorMessage(error);
+    console.error("Silent stats fetch failed:", errorMessage);
+    // Don't dispatch error for silent fetch to avoid UI disruption
+  }
+}
+
 // Root stats saga
 export default function* statsSaga(): Generator<any, void, any> {
   yield takeEvery("stats/fetchStatsRequest", fetchStatsSaga);
+  yield takeEvery("stats/fetchStatsRequestSilent", fetchStatsSilentSaga);
   yield takeEvery("stats/fetchRecentSongsRequest", fetchRecentSongsSaga);
 }

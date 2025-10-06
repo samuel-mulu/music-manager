@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from "react";
+import socketService from "../services/socketService";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "../store";
 import {
   fetchStatsRequest,
   fetchRecentSongsRequest,
   clearStatsError,
+  connectStatsSocket,
+  disconnectStatsSocket,
+  fetchStatsRequestSilent,
 } from "../features/stats/statsSlice";
 import {
   SongStats,
@@ -645,17 +649,137 @@ export default function StatsDashboard() {
     recentSongs,
     loading,
     error,
+    lastUpdated,
   } = useSelector((state: RootState) => state.stats);
 
+  const [socketConnected, setSocketConnected] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [pollingEnabled, setPollingEnabled] = useState(true);
+
   useEffect(() => {
+    // Fetch initial stats data
     dispatch(fetchStatsRequest());
     dispatch(fetchRecentSongsRequest());
+
+    // Connect to Socket.IO for real-time stats updates (reuses existing connection)
+    dispatch(connectStatsSocket());
+
+    // Listen for stats refresh events
+    const handleStatsRefresh = () => {
+      console.log("📊 Refreshing stats due to socket event");
+      setIsRefreshing(true);
+      dispatch(fetchStatsRequestSilent());
+      dispatch(fetchRecentSongsRequest());
+
+      // Reset refreshing state after a short delay
+      setTimeout(() => {
+        setIsRefreshing(false);
+      }, 1000);
+    };
+
+    window.addEventListener("refresh-stats", handleStatsRefresh);
+
+    // Listen for stats tab activation
+    const handleStatsTabActivated = () => {
+      console.log("📊 Stats tab activated, refreshing stats");
+      dispatch(fetchStatsRequestSilent());
+      dispatch(fetchRecentSongsRequest());
+    };
+
+    window.addEventListener("stats-tab-activated", handleStatsTabActivated);
+
+    // Check socket connection status
+    const checkSocketStatus = () => {
+      setSocketConnected(socketService.isSocketConnected());
+    };
+
+    // Check immediately and then periodically
+    checkSocketStatus();
+    const interval = setInterval(checkSocketStatus, 2000);
+
+    // Cleanup: only clean up listeners, don't disconnect shared socket
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("refresh-stats", handleStatsRefresh);
+      window.removeEventListener(
+        "stats-tab-activated",
+        handleStatsTabActivated
+      );
+      dispatch(disconnectStatsSocket());
+    };
   }, [dispatch]);
+
+  // Auto-refresh when component becomes visible (user navigates to stats)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        console.log("📊 Page became visible, refreshing stats");
+        dispatch(fetchStatsRequestSilent());
+        dispatch(fetchRecentSongsRequest());
+      }
+    };
+
+    const handleFocus = () => {
+      console.log("📊 Window focused, refreshing stats");
+      dispatch(fetchStatsRequestSilent());
+      dispatch(fetchRecentSongsRequest());
+    };
+
+    // Listen for page visibility and focus changes
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, [dispatch]);
+
+  // Polling mechanism as backup for socket events
+  useEffect(() => {
+    if (!pollingEnabled) return;
+
+    console.log("📊 Starting polling for stats updates (every 30 seconds)");
+
+    const pollInterval = setInterval(() => {
+      // Only poll if page is visible and socket is not connected
+      if (!document.hidden && !socketConnected) {
+        console.log("📊 Polling: Refreshing stats (socket not connected)");
+        dispatch(fetchStatsRequestSilent());
+        dispatch(fetchRecentSongsRequest());
+      } else if (!document.hidden && socketConnected) {
+        console.log("📊 Polling: Socket connected, doing light refresh");
+        dispatch(fetchRecentSongsRequest()); // Only refresh recent songs
+      }
+    }, 30000); // Poll every 30 seconds
+
+    return () => {
+      console.log("📊 Stopping polling");
+      clearInterval(pollInterval);
+    };
+  }, [dispatch, pollingEnabled, socketConnected]);
 
   const handleClearError = () => {
     dispatch(clearStatsError());
   };
 
+  const handleManualRefresh = () => {
+    console.log("📊 Manual refresh triggered");
+    setIsRefreshing(true);
+    dispatch(fetchStatsRequest());
+    dispatch(fetchRecentSongsRequest());
+
+    setTimeout(() => {
+      setIsRefreshing(false);
+    }, 1000);
+  };
+
+  const togglePolling = () => {
+    setPollingEnabled(!pollingEnabled);
+    console.log("📊 Polling", !pollingEnabled ? "enabled" : "disabled");
+  };
+
+  // Only show loading spinner on initial load (when no stats data exists)
   if (loading && !stats) {
     return (
       <div
@@ -707,6 +831,15 @@ export default function StatsDashboard() {
 
   return (
     <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "16px" }}>
+      {/* Add CSS animation for live indicator */}
+      <style>
+        {`
+          @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+          }
+        `}
+      </style>
       {/* Total Stats Cards */}
       <div
         style={{
@@ -800,14 +933,130 @@ export default function StatsDashboard() {
             alignItems: "center",
             fontSize: "11px",
             color: "#64748b",
+            marginBottom: "8px",
           }}
         >
-          <span>
-            Last updated:{" "}
-            {stats.metadata?.generatedAt
-              ? new Date(stats.metadata.generatedAt).toLocaleString()
-              : "N/A"}
-          </span>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleManualRefresh}
+              disabled={isRefreshing}
+              style={{
+                fontSize: "10px",
+                padding: "4px 8px",
+                height: "auto",
+                minWidth: "auto",
+              }}
+            >
+              {isRefreshing ? "🔄" : "↻"} Refresh
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={togglePolling}
+              style={{
+                fontSize: "10px",
+                padding: "4px 8px",
+                height: "auto",
+                minWidth: "auto",
+                color: pollingEnabled ? "#10b981" : "#64748b",
+              }}
+            >
+              {pollingEnabled ? "⏰" : "⏸️"} Polling
+            </Button>
+          </div>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            fontSize: "11px",
+            color: "#64748b",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <span>
+              Last updated:{" "}
+              {lastUpdated
+                ? new Date(lastUpdated).toLocaleString()
+                : stats.metadata?.generatedAt
+                ? new Date(stats.metadata.generatedAt).toLocaleString()
+                : "N/A"}
+            </span>
+            {lastUpdated && (
+              <div
+                className="flex items-center gap-1 text-green-600 dark:text-green-400 text-xs"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "4px",
+                  color: "#10b981",
+                  fontSize: "10px",
+                }}
+              >
+                <div
+                  className="bg-green-600 dark:bg-green-400"
+                  style={{
+                    width: "6px",
+                    height: "6px",
+                    borderRadius: "50%",
+                    backgroundColor: "#10b981",
+                    animation: "pulse 2s infinite",
+                  }}
+                />
+                Live
+              </div>
+            )}
+            {socketConnected && (
+              <div
+                className="flex items-center gap-1 text-blue-600 dark:text-blue-400 text-xs"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "4px",
+                  color: "#3b82f6",
+                  fontSize: "10px",
+                }}
+              >
+                <div
+                  className="bg-blue-600 dark:bg-blue-400"
+                  style={{
+                    width: "6px",
+                    height: "6px",
+                    borderRadius: "50%",
+                    backgroundColor: "#3b82f6",
+                  }}
+                />
+                Connected
+              </div>
+            )}
+            {isRefreshing && (
+              <div
+                className="flex items-center gap-1 text-orange-600 dark:text-orange-400 text-xs"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "4px",
+                  color: "#ea580c",
+                  fontSize: "10px",
+                }}
+              >
+                <div
+                  className="bg-orange-600 dark:bg-orange-400"
+                  style={{
+                    width: "6px",
+                    height: "6px",
+                    borderRadius: "50%",
+                    backgroundColor: "#ea580c",
+                    animation: "pulse 1s infinite",
+                  }}
+                />
+                Updating...
+              </div>
+            )}
+          </div>
           <span>
             Data range:{" "}
             {stats.metadata?.dataRange?.from?.createdAt

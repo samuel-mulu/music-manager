@@ -53,6 +53,7 @@ export default function SongsList() {
   const [editingSong, setEditingSong] = useState<Song | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [songToDelete, setSongToDelete] = useState<Song | null>(null);
+  const [deletingSongId, setDeletingSongId] = useState<string | null>(null);
   const [formData, setFormData] = useState<CreateSongRequest>({
     title: "",
     artist: "",
@@ -137,7 +138,12 @@ export default function SongsList() {
   };
 
   const handleDeleteSong = (song: Song) => {
+    // Prevent opening delete modal if already deleting this song
+    if (deletingSongId === song._id) {
+      return;
+    }
     setSongToDelete(song);
+    setDeletingSongId(song._id);
     setShowDeleteModal(true);
   };
 
@@ -146,12 +152,14 @@ export default function SongsList() {
       dispatch(deleteSongRequest(songToDelete._id));
       setShowDeleteModal(false);
       setSongToDelete(null);
+      setDeletingSongId(null);
     }
   };
 
   const cancelDelete = () => {
     setShowDeleteModal(false);
     setSongToDelete(null);
+    setDeletingSongId(null);
   };
 
   const handleViewSong = (song: Song) => {
@@ -250,6 +258,14 @@ export default function SongsList() {
       setIsSearching(false);
     };
   }, [searchTerm]); // Only trigger on search term changes
+
+  // Clear deleting state when delete operation completes
+  useEffect(() => {
+    if (deletingSongId && !loading.delete) {
+      // Delete operation completed, clear the deleting state
+      setDeletingSongId(null);
+    }
+  }, [loading.delete, deletingSongId]);
 
   // Use server-side data directly (no client-side filtering/sorting)
   const displaySongs = list;
@@ -738,7 +754,7 @@ export default function SongsList() {
                       variant="secondary"
                       size="sm"
                       onClick={() => handleDeleteSong(song)}
-                      disabled={loading.delete}
+                      disabled={deletingSongId === song._id}
                       style={{
                         flex: 1,
                         padding: "6px 10px",
@@ -750,24 +766,24 @@ export default function SongsList() {
                         color: "#64748b",
                         boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
                         transition: "all 0.2s ease",
-                        opacity: loading.delete ? 0.6 : 1,
+                        opacity: deletingSongId === song._id ? 0.6 : 1,
                       }}
                       onMouseEnter={(e) => {
-                        if (!loading.delete) {
+                        if (deletingSongId !== song._id) {
                           e.currentTarget.style.backgroundColor = "#fef2f2";
                           e.currentTarget.style.borderColor = "#fecaca";
                           e.currentTarget.style.color = "#dc2626";
                         }
                       }}
                       onMouseLeave={(e) => {
-                        if (!loading.delete) {
+                        if (deletingSongId !== song._id) {
                           e.currentTarget.style.backgroundColor = "#ffffff";
                           e.currentTarget.style.borderColor = "#e2e8f0";
                           e.currentTarget.style.color = "#64748b";
                         }
                       }}
                     >
-                      {loading.delete ? <Spinner /> : "🗑️ Delete"}
+                      {deletingSongId === song._id ? <Spinner /> : "🗑️ Delete"}
                     </Button>
                   </div>
                 </div>
@@ -1280,7 +1296,7 @@ export default function SongsList() {
                 <Button
                   variant="secondary"
                   onClick={cancelDelete}
-                  disabled={loading.delete}
+                  disabled={deletingSongId !== null}
                   style={{
                     flex: 1,
                     padding: "10px 16px",
@@ -1297,7 +1313,7 @@ export default function SongsList() {
                 <Button
                   variant="primary"
                   onClick={confirmDelete}
-                  disabled={loading.delete}
+                  disabled={deletingSongId !== null}
                   style={{
                     flex: 1,
                     padding: "10px 16px",
@@ -1309,7 +1325,7 @@ export default function SongsList() {
                     color: "#ffffff",
                   }}
                 >
-                  {loading.delete ? (
+                  {deletingSongId !== null ? (
                     <>
                       <Spinner />
                       <span style={{ marginLeft: "8px" }}>Deleting...</span>
