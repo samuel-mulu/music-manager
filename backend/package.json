@@ -9,6 +9,8 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "start:prod": "NODE_ENV=production node dist/server.js",
+    "prebuild": "rm -rf dist",
+    "postinstall": "npm run build",
     "docker:build": "docker build -t song-api-backend .",
     "docker:run": "docker-compose up -d",
     "docker:stop": "docker-compose down",

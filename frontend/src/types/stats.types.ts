@@ -90,8 +90,8 @@ export interface RecentSong {
   artist: string;
   album?: string;
   genre: string;
-  duration: number;
-  releaseDate: string;
+  duration?: number; // Made optional since backend doesn't provide this field
+  releaseDate?: string; // Made optional since backend doesn't provide this field
   createdAt: string;
   updatedAt: string;
 }

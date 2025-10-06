@@ -414,8 +414,11 @@ const RecentSongs: React.FC<{ songs: RecentSong[] }> = ({ songs }) => (
                   color: "#64748b",
                 }}
               >
-                {Math.floor(song.duration / 60)}:
-                {(song.duration % 60).toString().padStart(2, "0")}
+                {song.duration && typeof song.duration === "number"
+                  ? `${Math.floor(song.duration / 60)}:${(song.duration % 60)
+                      .toString()
+                      .padStart(2, "0")}`
+                  : "--:--"}
               </div>
             </div>
           </div>

@@ -43,8 +43,19 @@ function* fetchStatsSaga(): Generator<any, void, any> {
 // Fetch recent songs saga
 function* fetchRecentSongsSaga(): Generator<any, void, any> {
   try {
+    console.log("🎵 Fetching recent songs...");
     const response: { data: RecentSong[] } = yield call(
       statsApi.getRecentSongs
+    );
+
+    console.log(
+      "📊 Recent songs received:",
+      response.data.map((song) => ({
+        title: song.title,
+        artist: song.artist,
+        hasDuration: !!song.duration,
+        duration: song.duration,
+      }))
     );
 
     yield put({
@@ -53,6 +64,7 @@ function* fetchRecentSongsSaga(): Generator<any, void, any> {
     });
   } catch (error: any) {
     const errorMessage = getErrorMessage(error);
+    console.error("❌ Fetch recent songs failed:", errorMessage);
 
     yield put({
       type: "stats/fetchRecentSongsFailure",

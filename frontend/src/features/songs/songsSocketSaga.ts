@@ -75,15 +75,25 @@ function* handleSocketEvents(): Generator<any, void, any> {
 
       switch (event.type) {
         case "SOCKET_SONG_CREATED":
-          // Only add song if it's from another user (not our own creation)
-          // This prevents duplicate songs when we create via API
+          // Check if song already exists to prevent duplicates
+          // This handles both API-created songs and socket-created songs
           const existingSong = yield select((state: any) =>
             state.songs.list.find(
               (song: any) => song._id === event.payload.song._id
             )
           );
+
           if (!existingSong) {
+            console.log(
+              "📝 Adding new song from socket:",
+              event.payload.song.title
+            );
             yield put(createSongSuccess(event.payload.song));
+          } else {
+            console.log(
+              "⚠️ Song already exists, skipping socket creation:",
+              event.payload.song.title
+            );
           }
           break;
 

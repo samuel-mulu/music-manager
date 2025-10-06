@@ -53,8 +53,21 @@ mongoose
 
     // Start server
     httpServer.listen(PORT, () => {
-      console.log(`🚀 Server running on http://localhost:${PORT}`);
+      console.log(`🚀 Server running on port ${PORT}`);
       console.log(`🔌 Socket.IO ready for real-time connections`);
+      console.log(`📊 Environment: ${process.env.NODE_ENV || "development"}`);
+    });
+
+    // Graceful shutdown
+    process.on("SIGTERM", () => {
+      console.log("🛑 SIGTERM received. Shutting down gracefully...");
+      httpServer.close(() => {
+        console.log("✅ Process terminated");
+        mongoose.connection.close(false, () => {
+          console.log("✅ MongoDB connection closed");
+          process.exit(0);
+        });
+      });
     });
   })
   .catch((err) => {

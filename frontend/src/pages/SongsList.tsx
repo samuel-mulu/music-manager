@@ -906,7 +906,7 @@ export default function SongsList() {
         )}
 
         {/* Professional Pagination */}
-        {pagination && (
+        {pagination && pagination.total !== undefined && (
           <div
             style={{
               backgroundColor: "#ffffff",
@@ -943,9 +943,9 @@ export default function SongsList() {
                   Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
                   {Math.min(
                     pagination.page * pagination.limit,
-                    pagination.total
+                    pagination.total || 0
                   )}{" "}
-                  of {pagination.total} songs
+                  of {pagination.total || 0} songs
                 </span>
               </div>
 

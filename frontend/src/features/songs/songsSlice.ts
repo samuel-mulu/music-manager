@@ -45,7 +45,10 @@ const songsSlice = createSlice({
       state.list = action.payload.songs;
       state.loading.fetch = false;
       if (action.payload.pagination) {
+        console.log("📊 Pagination data received:", action.payload.pagination);
         state.pagination = action.payload.pagination;
+      } else {
+        console.log("⚠️ No pagination data received from API");
       }
     },
     fetchSongsFailure: (state, action: PayloadAction<string>) => {
@@ -59,7 +62,14 @@ const songsSlice = createSlice({
       state.error = null;
     },
     createSongSuccess: (state, action: PayloadAction<Song>) => {
-      state.list.unshift(action.payload); // Add to beginning
+      // Check if song already exists to prevent duplicates
+      const existingSongIndex = state.list.findIndex(
+        (song) => song._id === action.payload._id
+      );
+
+      if (existingSongIndex === -1) {
+        state.list.unshift(action.payload); // Add to beginning only if not exists
+      }
       state.loading.create = false;
     },
     createSongFailure: (state, action: PayloadAction<string>) => {
