@@ -7,6 +7,9 @@
       "use": "@vercel/static-build",
       "config": {
         "distDir": "build"
+      },
+      "env": {
+        "REACT_APP_BACKEND_URL": "https://music-manager-1.onrender.com"
       }
     }
   ],
