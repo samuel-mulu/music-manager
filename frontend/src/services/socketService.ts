@@ -1,4 +1,9 @@
 import { io, Socket } from "socket.io-client";
+import {
+  SocketSongEvent,
+  SocketSongDeletedEvent,
+  SocketStatsEvent,
+} from "../types/socket.types";
 import { API_URL } from "../config/env";
 
 class SocketService {
@@ -70,21 +75,21 @@ class SocketService {
   }
 
   // Listen for song events (supports multiple listeners)
-  onSongCreated(callback: (data: any) => void): void {
+  onSongCreated(callback: (data: SocketSongEvent) => void): void {
     if (this.socket) {
       this.socket.on("song-created", callback);
       console.log("🎵 Registered song-created listener");
     }
   }
 
-  onSongUpdated(callback: (data: any) => void): void {
+  onSongUpdated(callback: (data: SocketSongEvent) => void): void {
     if (this.socket) {
       this.socket.on("song-updated", callback);
       console.log("🎵 Registered song-updated listener");
     }
   }
 
-  onSongDeleted(callback: (data: any) => void): void {
+  onSongDeleted(callback: (data: SocketSongDeletedEvent) => void): void {
     if (this.socket) {
       this.socket.on("song-deleted", callback);
       console.log("🎵 Registered song-deleted listener");
@@ -92,19 +97,19 @@ class SocketService {
   }
 
   // Remove event listeners
-  offSongCreated(callback?: (data: any) => void): void {
+  offSongCreated(callback?: (data: SocketSongEvent) => void): void {
     if (this.socket) {
       this.socket.off("song-created", callback);
     }
   }
 
-  offSongUpdated(callback?: (data: any) => void): void {
+  offSongUpdated(callback?: (data: SocketSongEvent) => void): void {
     if (this.socket) {
       this.socket.off("song-updated", callback);
     }
   }
 
-  offSongDeleted(callback?: (data: any) => void): void {
+  offSongDeleted(callback?: (data: SocketSongDeletedEvent) => void): void {
     if (this.socket) {
       this.socket.off("song-deleted", callback);
     }
@@ -126,13 +131,13 @@ class SocketService {
   }
 
   // Listen for stats events (currently using song events for stats updates)
-  onStatsUpdate(callback: (data: any) => void): void {
+  onStatsUpdate(callback: (data: SocketStatsEvent) => void): void {
     if (this.socket) {
       this.socket.on("stats-updated", callback);
     }
   }
 
-  offStatsUpdate(callback?: (data: any) => void): void {
+  offStatsUpdate(callback?: (data: SocketStatsEvent) => void): void {
     if (this.socket) {
       this.socket.off("stats-updated", callback);
     }

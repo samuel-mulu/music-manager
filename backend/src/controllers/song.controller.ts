@@ -9,9 +9,14 @@ import {
 
 // Create a new song
 export const createSong = catchAsync(async (req: Request, res: Response) => {
-  const { title, artist, songType, genre } = req.body;
+  const { title, artist, songType, genre, album } = req.body;
   if (!title || !artist || !genre) {
     throw new AppError("Title, artist, and genre are required", 400);
+  }
+
+  // Validate album name for album type songs
+  if (songType === "album" && (!album || album.trim() === "")) {
+    throw new AppError("Album name is required when song type is 'album'", 400);
   }
 
   // Check if song title already exists
@@ -22,7 +27,7 @@ export const createSong = catchAsync(async (req: Request, res: Response) => {
     throw new AppError("A song with this title already exists", 409);
   }
 
-  const song = await Song.create({ title, artist, songType, genre });
+  const song = await Song.create({ title, artist, songType, genre, album });
 
   // Emit real-time event for new song
   const io = req.app.get("io");
@@ -108,11 +113,16 @@ export const getSongById = catchAsync(async (req: Request, res: Response) => {
 
 // Update song
 export const updateSong = catchAsync(async (req: Request, res: Response) => {
-  const { title, songType } = req.body;
+  const { title, songType, album } = req.body;
 
   // Validate songType if provided
   if (songType && !["single", "album"].includes(songType)) {
     throw new AppError("songType must be either 'single' or 'album'", 400);
+  }
+
+  // Validate album name for album type songs
+  if (songType === "album" && (!album || album.trim() === "")) {
+    throw new AppError("Album name is required when song type is 'album'", 400);
   }
 
   // If title is being updated, check for duplicates

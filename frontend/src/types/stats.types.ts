@@ -88,6 +88,7 @@ export interface RecentSong {
   _id: string;
   title: string;
   artist: string;
+  songType: "single" | "album";
   album?: string;
   genre: string;
   duration?: number; // Made optional since backend doesn't provide this field

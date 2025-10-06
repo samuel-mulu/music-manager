@@ -2,6 +2,12 @@ import { call, put, takeEvery, fork, take, select } from "redux-saga/effects";
 import { eventChannel, END } from "redux-saga";
 import socketService from "../../services/socketService";
 import {
+  SocketSongEvent,
+  SocketSongDeletedEvent,
+} from "../../types/socket.types";
+import { Song } from "../../types/song.types";
+import { RootState } from "../../store";
+import {
   createSongSuccess,
   updateSongSuccess,
   deleteSongSuccess,
@@ -19,17 +25,17 @@ function createSocketChannel() {
     socketService.joinSongsRoom();
 
     // Set up event listeners
-    const handleSongCreated = (data: any) => {
+    const handleSongCreated = (data: SocketSongEvent) => {
       console.log("🎵 Socket: Song created", data);
       emit({ type: "SOCKET_SONG_CREATED", payload: data });
     };
 
-    const handleSongUpdated = (data: any) => {
+    const handleSongUpdated = (data: SocketSongEvent) => {
       console.log("🎵 Socket: Song updated", data);
       emit({ type: "SOCKET_SONG_UPDATED", payload: data });
     };
 
-    const handleSongDeleted = (data: any) => {
+    const handleSongDeleted = (data: SocketSongDeletedEvent) => {
       console.log("🎵 Socket: Song deleted", data);
       emit({ type: "SOCKET_SONG_DELETED", payload: data });
     };
@@ -69,9 +75,9 @@ function* handleSocketEvents(): Generator<any, void, any> {
         case "SOCKET_SONG_CREATED":
           // Check if song already exists to prevent duplicates
           // This handles both API-created songs and socket-created songs
-          const existingSong = yield select((state: any) =>
+          const existingSong = yield select((state: RootState) =>
             state.songs.list.find(
-              (song: any) => song._id === event.payload.song._id
+              (song: Song) => song._id === event.payload.song._id
             )
           );
 
@@ -91,9 +97,9 @@ function* handleSocketEvents(): Generator<any, void, any> {
 
         case "SOCKET_SONG_UPDATED":
           // Only update song if it exists in our list (prevents duplicates)
-          const existingUpdatedSong = yield select((state: any) =>
+          const existingUpdatedSong = yield select((state: RootState) =>
             state.songs.list.find(
-              (song: any) => song._id === event.payload.song._id
+              (song: Song) => song._id === event.payload.song._id
             )
           );
           if (existingUpdatedSong) {
@@ -103,9 +109,9 @@ function* handleSocketEvents(): Generator<any, void, any> {
 
         case "SOCKET_SONG_DELETED":
           // Only delete song if it exists in our list (prevents errors)
-          const existingDeletedSong = yield select((state: any) =>
+          const existingDeletedSong = yield select((state: RootState) =>
             state.songs.list.find(
-              (song: any) => song._id === event.payload.songId
+              (song: Song) => song._id === event.payload.songId
             )
           );
           if (existingDeletedSong) {

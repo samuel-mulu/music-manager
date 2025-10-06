@@ -51,6 +51,7 @@ export const songsApi = {
     fields?: string;
     genre?: string;
     songType?: string;
+    album?: string;
   }): Promise<PaginatedResponse<Song>> => {
     const response: AxiosResponse<PaginatedResponse<Song>> =
       await apiClient.get("/", { params });

@@ -6,6 +6,7 @@ export interface Song {
   artist: string;
   songType: "single" | "album";
   genre: string;
+  album?: string; // Optional album name for album type songs
   createdAt: string;
   updatedAt: string;
 }
@@ -15,6 +16,7 @@ export interface CreateSongRequest {
   artist: string;
   songType: "single" | "album";
   genre: string;
+  album?: string; // Optional album name for album type songs
 }
 
 export interface UpdateSongRequest {
@@ -22,6 +24,7 @@ export interface UpdateSongRequest {
   artist?: string;
   songType?: "single" | "album";
   genre?: string;
+  album?: string; // Optional album name for album type songs
 }
 
 export interface ApiResponse<T> {

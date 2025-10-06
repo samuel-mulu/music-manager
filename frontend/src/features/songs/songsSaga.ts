@@ -1,4 +1,5 @@
 import { call, put, takeLatest } from "redux-saga/effects";
+import { ApiError } from "../../types/socket.types";
 import { songsApi } from "./songsApi";
 import {
   fetchSongsRequest,
@@ -19,7 +20,7 @@ import {
 } from "./songsSlice";
 
 // Helper function to extract error message
-function getErrorMessage(error: any): string {
+function getErrorMessage(error: ApiError): string {
   if (error.response?.data?.message) {
     return error.response.data.message;
   }

@@ -11,6 +11,11 @@ import {
   fetchStatsRequestSilent,
 } from "../features/stats/statsSlice";
 import { SongStats, RecentSong } from "../types/stats.types";
+import {
+  GenreDistribution,
+  ArtistDistribution,
+  SongTypeDistribution,
+} from "../types/socket.types";
 import { Card, Button, Spinner, Alert, Badge } from "../components/ui";
 
 // Statistics Card Component
@@ -82,7 +87,9 @@ const StatCard: React.FC<{
 };
 
 // Genre Breakdown Component
-const GenreBreakdown: React.FC<{ genres: any[] }> = ({ genres }) => {
+const GenreBreakdown: React.FC<{ genres: GenreDistribution[] }> = ({
+  genres,
+}) => {
   // Calculate total songs for percentage calculation
   const totalSongs = genres.reduce(
     (sum, genre) => sum + (genre.totalCount || 0),
@@ -205,7 +212,9 @@ const GenreBreakdown: React.FC<{ genres: any[] }> = ({ genres }) => {
 };
 
 // Artist Breakdown Component
-const ArtistBreakdown: React.FC<{ artists: any[] }> = ({ artists }) => {
+const ArtistBreakdown: React.FC<{ artists: ArtistDistribution[] }> = ({
+  artists,
+}) => {
   // Calculate total songs for percentage calculation
   const totalSongs = artists.reduce(
     (sum, artist) => sum + (artist.songCount || 0),
@@ -394,7 +403,9 @@ const RecentSongs: React.FC<{ songs: RecentSong[] }> = ({ songs }) => (
                   }}
                 >
                   {song.artist} • {song.genre}
-                  {song.album && ` • ${song.album}`}
+                  {song.songType === "album" &&
+                    song.album &&
+                    ` • ${song.album}`}
                 </div>
               </div>
             </div>
@@ -428,7 +439,9 @@ const RecentSongs: React.FC<{ songs: RecentSong[] }> = ({ songs }) => (
 );
 
 // Song Type Breakdown Component (since we have songsPerType data)
-const SongTypeBreakdown: React.FC<{ songTypes: any[] }> = ({ songTypes }) => {
+const SongTypeBreakdown: React.FC<{ songTypes: SongTypeDistribution[] }> = ({
+  songTypes,
+}) => {
   // Calculate total songs for percentage calculation
   const totalSongs = songTypes.reduce(
     (sum, type) => sum + (type.count || 0),

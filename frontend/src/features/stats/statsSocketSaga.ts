@@ -1,6 +1,16 @@
 import { call, takeEvery } from "redux-saga/effects";
 import socketService from "../../services/socketService";
-import { connectStatsSocket, disconnectStatsSocket } from "./statsSlice";
+import {
+  SocketSongEvent,
+  SocketSongDeletedEvent,
+  SocketSongData,
+} from "../../types/socket.types";
+import {
+  GenreDistribution,
+  ArtistDistribution,
+  SongTypeDistribution,
+} from "../../types/socket.types";
+// import { connectStatsSocket, disconnectStatsSocket } from "./statsSlice";
 
 // Direct stats update handlers
 let statsCleanup: (() => void) | null = null;
@@ -10,7 +20,7 @@ function setupStatsSocketListeners() {
   console.log("📊 Setting up direct stats socket listeners");
 
   // Song created handler
-  const handleSongCreated = (data: any) => {
+  const handleSongCreated = (data: SocketSongEvent) => {
     console.log("📊 Stats: Song created, updating stats", data);
     console.log("📊 Stats: Song data:", {
       title: data.song?.title,
@@ -26,7 +36,7 @@ function setupStatsSocketListeners() {
   };
 
   // Song updated handler
-  const handleSongUpdated = (data: any) => {
+  const handleSongUpdated = (data: SocketSongEvent) => {
     console.log("📊 Stats: Song updated, updating stats", data);
     console.log("📊 Stats: Updated song data:", {
       title: data.song?.title,
@@ -42,7 +52,7 @@ function setupStatsSocketListeners() {
   };
 
   // Song deleted handler
-  const handleSongDeleted = (data: any) => {
+  const handleSongDeleted = (data: SocketSongDeletedEvent) => {
     console.log("📊 Stats: Song deleted, updating stats", data);
     console.log("📊 Stats: Deleted song data:", {
       songId: data.songId,
@@ -73,10 +83,12 @@ function setupStatsSocketListeners() {
 }
 
 // Helper function to calculate updated stats from song changes
+// This function is currently unused as we use real-time refresh instead
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function calculateUpdatedStats(
   currentStats: any,
   changeType: "created" | "updated" | "deleted",
-  songData: any
+  songData: SocketSongData
 ) {
   if (!currentStats) return null;
 
@@ -116,7 +128,7 @@ function calculateUpdatedStats(
     // Update songs per genre
     if (updatedStats.distribution.songsPerGenre) {
       const genreIndex = updatedStats.distribution.songsPerGenre.findIndex(
-        (g: any) => g._id === songData.genre
+        (g: GenreDistribution) => g._id === songData.genre
       );
 
       if (changeType === "created") {
@@ -172,7 +184,8 @@ function calculateUpdatedStats(
     // Update songs per artist
     if (updatedStats.distribution.songsPerArtist) {
       const artistIndex = updatedStats.distribution.songsPerArtist.findIndex(
-        (a: any) => a.artist === songData.artist || a._id === songData.artist
+        (a: ArtistDistribution) =>
+          a.artist === songData.artist || a._id === songData.artist
       );
 
       if (changeType === "created") {
@@ -229,7 +242,7 @@ function calculateUpdatedStats(
     // Update songs per type
     if (updatedStats.distribution.songsPerType) {
       const typeIndex = updatedStats.distribution.songsPerType.findIndex(
-        (t: any) => t._id === songData.songType
+        (t: SongTypeDistribution) => t._id === songData.songType
       );
 
       if (changeType === "created") {

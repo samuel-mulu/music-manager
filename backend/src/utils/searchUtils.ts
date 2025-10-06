@@ -5,11 +5,12 @@ export interface SearchOptions {
   artist?: string;
   songType?: string;
   genre?: string;
+  album?: string;
   search?: string;
 }
 
 export const buildSearchFilter = (req: Request) => {
-  const { title, artist, songType, genre, search } = req.query;
+  const { title, artist, songType, genre, album, search } = req.query;
   let filter: any = {};
 
   // Exact field matching
@@ -17,6 +18,7 @@ export const buildSearchFilter = (req: Request) => {
   if (artist) filter.artist = { $regex: artist as string, $options: "i" };
   if (songType) filter.songType = songType as string;
   if (genre) filter.genre = { $regex: genre as string, $options: "i" };
+  if (album) filter.album = { $regex: album as string, $options: "i" };
 
   // Global search across multiple fields
   if (search) {
@@ -24,6 +26,7 @@ export const buildSearchFilter = (req: Request) => {
       { title: { $regex: search as string, $options: "i" } },
       { artist: { $regex: search as string, $options: "i" } },
       { genre: { $regex: search as string, $options: "i" } },
+      { album: { $regex: search as string, $options: "i" } },
     ];
   }
 
@@ -52,11 +55,13 @@ export const validateQueryParams = (req: Request) => {
     "artist",
     "songType",
     "genre",
+    "album",
     "createdAt",
     "-title",
     "-artist",
     "-songType",
     "-genre",
+    "-album",
     "-createdAt",
   ];
   if (sort && !allowedSortFields.includes(sort as string)) {
