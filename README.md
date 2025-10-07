@@ -15,7 +15,6 @@
 - [Architecture](#-architecture)
 - [Getting Started](#-getting-started)
 - [API Documentation](#-api-documentation)
-- [Deployment](#-deployment)
 - [Project Structure](#-project-structure)
 
 ---
@@ -161,19 +160,9 @@ This project demonstrates full-stack development expertise by implementing a com
 
 ## 🚀 Getting Started
 
-### Prerequisites
-
-- **Node.js** v16+ ([Download](https://nodejs.org/))
-- **MongoDB** v5+ ([Download](https://www.mongodb.com/try/download/community) or use [MongoDB Atlas](https://www.mongodb.com/cloud/atlas))
-- **Docker** (optional, for containerization)
-- **npm** or **yarn**
-
-### Installation
 
 #### 1. Clone the Repository
 
-```bash
-git clone https://github.com/yourusername/music-manager.git
 cd music-manager
 ```
 
@@ -184,19 +173,7 @@ cd backend
 npm install
 ```
 
-Create `.env` file:
 
-```env
-# Server
-PORT=5000
-NODE_ENV=development
-
-# Database
-MONGO_URI=mongodb://localhost:27017/addis_songs
-
-# Frontend URL (for CORS)
-FRONTEND_URL=http://localhost:3000
-```
 
 Start the backend:
 
@@ -213,11 +190,7 @@ cd frontend
 npm install
 ```
 
-Create `.env` file:
 
-```env
-REACT_APP_BACKEND_URL=http://localhost:5000
-```
 
 Start the frontend:
 
@@ -225,7 +198,6 @@ Start the frontend:
    npm start
 ```
 
-Frontend runs on `http://localhost:3000`
 
 ### 🐳 Docker Installation (Alternative)
 
@@ -236,12 +208,6 @@ cd backend
 docker-compose up --build
 ```
 
-This starts:
-
-- MongoDB on port 27017
-- Redis on port 6379 (optional caching)
-- Backend API on port 5000
-- Nginx reverse proxy on port 80
 
 ---
 
@@ -284,7 +250,6 @@ This starts:
 &album=Greatest Hits       # Filter by album name
 ```
 
-### Request/Response Examples
 
 #### Create Song
 
@@ -379,63 +344,6 @@ GET /api/v1/songs/stats
 | `song-updated` | Song modified  | `{ type: 'updated', song: {...}, timestamp }`         |
 | `song-deleted` | Song removed   | `{ type: 'deleted', songId, song: {...}, timestamp }` |
 
----
-
-## 🌐 Deployment
-
-### Frontend Deployment (Vercel)
-
-1. **Connect GitHub Repository**
-
-   ```bash
-   git push origin main
-   ```
-
-2. **Configure Vercel**
-
-   - Go to [vercel.com](https://vercel.com)
-   - Import your repository
-   - Set Root Directory: `frontend`
-   - Set Build Command: `npm run vercel-build`
-   - Set Output Directory: `build`
-
-3. **Environment Variables**
-   ```
-   REACT_APP_BACKEND_URL=https://your-backend.onrender.com
-   GENERATE_SOURCEMAP=false
-   CI=false
-   ```
-
-### Backend Deployment (Render)
-
-1. **Connect GitHub Repository**
-
-   - Go to [render.com](https://render.com)
-   - Create new Web Service
-   - Connect your repository
-
-2. **Configure Service**
-
-   - Root Directory: `backend`
-   - Build Command: `npm install && npm run build`
-   - Start Command: `npm start`
-
-3. **Environment Variables**
-   ```
-   NODE_ENV=production
-   PORT=5000
-   MONGO_URI=mongodb+srv://user:pass@cluster.mongodb.net/music_db
-   FRONTEND_URL=https://your-app.vercel.app
-   ```
-
-### Docker Deployment
-
-```bash
-cd backend
-docker-compose up -d
-```
-
----
 
 ## 📁 Project Structure
 
@@ -571,39 +479,6 @@ npm test
 # Frontend
 cd frontend
 npm test
-```
-
----
-
-## 🔧 Development Scripts
-
-### Backend
-
-```bash
-npm run dev          # Development with hot reload
-npm run build        # Compile TypeScript
-npm start            # Production server
-```
-
-### Frontend
-
-```bash
-npm start            # Development server (port 3000)
-npm run build        # Production build
-npm run vercel-build # Vercel optimized build
-```
-
----
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit changes (`git commit -m 'Add AmazingFeature'`)
-4. Push to branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
----
 
 ---
 
@@ -618,7 +493,7 @@ npm run vercel-build # Vercel optimized build
 
 <div align="center">
 
-### ⭐ Star this repo if you find it useful!
+### ⭐ hire me this repo if you find it useful!
 
 **Built with the MERN Stack** 🚀
 
