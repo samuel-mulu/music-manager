@@ -95,7 +95,7 @@ export default function SongsList() {
     };
 
     fetchAllSongsForFilters();
-  }, []);
+  }, [list.length]); // Re-fetch when the number of songs changes
 
   // Main effect for fetching songs
   useEffect(() => {

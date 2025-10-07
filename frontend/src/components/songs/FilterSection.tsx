@@ -119,7 +119,7 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
           <label
             style={{
               display: "block",
-              fontSize: "12px",
+              fontSize: "13px",
               fontWeight: "600",
               color: "#374151",
               marginBottom: "6px",
@@ -127,9 +127,9 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
               letterSpacing: "0.3px",
             }}
           >
-            Search
+            By
           </label>
-          <div style={{ display: "flex", gap: "8px" }}>
+          <div style={{ display: "flex", gap: "2px" }}>
             {/* Search Type Dropdown - Now larger */}
             <Select
               value={searchType}
@@ -153,7 +153,7 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
             <div
               style={{
                 position: "relative",
-                minWidth: "200px",
+                minWidth: "0px",
                 maxWidth: "300px",
               }}
             >
@@ -211,7 +211,7 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
               fontSize: "12px",
               fontWeight: "600",
               color: "#374151",
-              marginBottom: "6px",
+              marginBottom: "2px",
               textTransform: "uppercase",
               letterSpacing: "0.3px",
             }}
@@ -222,9 +222,9 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
             value={sortBy}
             onChange={(e) => onSortChange(e.target.value)}
             style={{
-              borderRadius: "6px",
-              border: "1px solid #d1d5db",
-              fontSize: "13px",
+              borderRadius: "60px",
+              border: "0px solid #d1d5db",
+              fontSize: "12px",
               height: "36px",
             }}
           >
@@ -243,7 +243,7 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
               fontSize: "12px",
               fontWeight: "600",
               color: "#374151",
-              marginBottom: "6px",
+              marginBottom: "3px",
               textTransform: "uppercase",
               letterSpacing: "0.3px",
             }}
@@ -254,10 +254,10 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
             value={selectedSongType}
             onChange={(e) => onSongTypeChange(e.target.value)}
             style={{
-              borderRadius: "6px",
-              border: "1px solid #d1d5db",
-              fontSize: "13px",
-              height: "36px",
+              borderRadius: "60px",
+              border: "0px solid #d1d5db",
+              fontSize: "12px",
+              height: "50px",
             }}
           >
             <option value="all">All Types</option>
@@ -296,10 +296,10 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
               value={selectedAlbumName}
               onChange={(e) => onAlbumNameChange(e.target.value)}
               style={{
-                borderRadius: "6px",
-                border: "1px solid #d1d5db",
-                fontSize: "13px",
-                height: "36px",
+                borderRadius: "60px",
+                border: "0px solid #d1d5db",
+                fontSize: "12px",
+                height: "50px",
               }}
             >
               <option value="all">All Albums</option>
@@ -337,10 +337,10 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
             value={selectedGenre}
             onChange={(e) => onGenreChange(e.target.value)}
             style={{
-              borderRadius: "6px",
-              border: "1px solid #d1d5db",
-              fontSize: "13px",
-              height: "36px",
+              borderRadius: "60px",
+              border: "0px solid #d1d5db",
+              fontSize: "12px",
+              height: "50px",
             }}
           >
             <option value="all">All Genres</option>
