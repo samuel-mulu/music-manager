@@ -87,7 +87,6 @@ export default function SongsList() {
         const data = await response.json();
         if (data.success) {
           setAllSongsForFilters(data.data);
-          console.log("📊 Fetched all songs for filters:", data.data.length);
         }
       } catch (error) {
         console.error("Failed to fetch all songs for filters:", error);
@@ -117,7 +116,6 @@ export default function SongsList() {
           : "-createdAt",
     };
 
-    console.log("🔍 Fetching songs with params:", requestParams);
     dispatch(fetchSongsRequest(requestParams));
 
     dispatch(connectSocket());
@@ -163,7 +161,6 @@ export default function SongsList() {
             : "-createdAt",
       };
 
-      console.log("🔍 Debounced search with params:", searchParams);
       dispatch(fetchSongsRequest(searchParams));
       setIsSearching(false);
     }, 800);
@@ -384,28 +381,6 @@ export default function SongsList() {
         .map((song) => song.album!.trim())
     )
   ).sort();
-
-  // Debug logging
-  console.log("🔍 Album Filter Debug:", {
-    totalSongs: list.length,
-    allSongsForFilters: allSongsForFilters.length,
-    albumSongs: list.filter((song) => song.songType === "album").length,
-    albumSongsWithNames: list.filter(
-      (song) => song.songType === "album" && song.album
-    ).length,
-    uniqueAlbumNames,
-    selectedSongType,
-    shouldShowFilter: selectedSongType === "album",
-    sampleAlbumSongs: allSongsForFilters
-      .filter((song) => song.songType === "album")
-      .slice(0, 3)
-      .map((song) => ({
-        title: song.title,
-        songType: song.songType,
-        album: song.album,
-        hasAlbum: !!song.album,
-      })),
-  });
 
   return (
     <div

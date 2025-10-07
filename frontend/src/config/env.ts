@@ -37,17 +37,3 @@ export const config = {
 
 // Export the appropriate API URL (smart detection)
 export const API_URL = config.API_URL;
-
-// Debug logging for production
-if (process.env.NODE_ENV === "production") {
-  console.log("🔗 API URL configured:", API_URL);
-  console.log("🌍 Environment:", process.env.NODE_ENV);
-  console.log("🔧 REACT_APP_BACKEND_URL:", process.env.REACT_APP_BACKEND_URL);
-  console.log("🌐 Hostname:", window.location.hostname);
-  console.log(
-    "🚀 Is Vercel deployment:",
-    window.location.hostname.includes("vercel.app") ||
-      window.location.hostname.includes("vercel.com")
-  );
-  console.log("🔄 Build version: 2025-01-06-v3 - Complete modal rebuild");
-}

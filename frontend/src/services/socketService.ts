@@ -21,12 +21,10 @@ class SocketService {
 
       // Connection event handlers
       this.socket.on("connect", () => {
-        console.log("🔌 Socket.IO connected:", this.socket?.id);
         this.isConnected = true;
       });
 
       this.socket.on("disconnect", (reason) => {
-        console.log("🔌 Socket.IO disconnected:", reason);
         this.isConnected = false;
       });
 
@@ -62,7 +60,6 @@ class SocketService {
   joinSongsRoom(): void {
     if (this.socket) {
       this.socket.emit("join-songs-room");
-      console.log("👤 Joined songs room");
     }
   }
 
@@ -70,7 +67,6 @@ class SocketService {
   leaveSongsRoom(): void {
     if (this.socket) {
       this.socket.emit("leave-songs-room");
-      console.log("👋 Left songs room");
     }
   }
 
@@ -78,21 +74,18 @@ class SocketService {
   onSongCreated(callback: (data: SocketSongEvent) => void): void {
     if (this.socket) {
       this.socket.on("song-created", callback);
-      console.log("🎵 Registered song-created listener");
     }
   }
 
   onSongUpdated(callback: (data: SocketSongEvent) => void): void {
     if (this.socket) {
       this.socket.on("song-updated", callback);
-      console.log("🎵 Registered song-updated listener");
     }
   }
 
   onSongDeleted(callback: (data: SocketSongDeletedEvent) => void): void {
     if (this.socket) {
       this.socket.on("song-deleted", callback);
-      console.log("🎵 Registered song-deleted listener");
     }
   }
 
@@ -119,14 +112,12 @@ class SocketService {
   joinStatsRoom(): void {
     if (this.socket) {
       this.socket.emit("join-stats-room");
-      console.log("📊 Joined stats room");
     }
   }
 
   leaveStatsRoom(): void {
     if (this.socket) {
       this.socket.emit("leave-stats-room");
-      console.log("📊 Left stats room");
     }
   }
 

@@ -46,7 +46,6 @@ export default function StatsDashboard() {
 
     // Listen for stats refresh events
     const handleStatsRefresh = () => {
-      console.log("📊 Refreshing stats due to socket event");
       setIsRefreshing(true);
       dispatch(fetchStatsRequestSilent());
       dispatch(fetchRecentSongsRequest());
@@ -61,7 +60,6 @@ export default function StatsDashboard() {
 
     // Listen for stats tab activation
     const handleStatsTabActivated = () => {
-      console.log("📊 Stats tab activated, refreshing stats");
       dispatch(fetchStatsRequestSilent());
       dispatch(fetchRecentSongsRequest());
     };
@@ -93,14 +91,12 @@ export default function StatsDashboard() {
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (!document.hidden) {
-        console.log("📊 Page became visible, refreshing stats");
         dispatch(fetchStatsRequestSilent());
         dispatch(fetchRecentSongsRequest());
       }
     };
 
     const handleFocus = () => {
-      console.log("📊 Window focused, refreshing stats");
       dispatch(fetchStatsRequestSilent());
       dispatch(fetchRecentSongsRequest());
     };
@@ -119,22 +115,17 @@ export default function StatsDashboard() {
   useEffect(() => {
     if (!pollingEnabled) return;
 
-    console.log("📊 Starting polling for stats updates (every 30 seconds)");
-
     const pollInterval = setInterval(() => {
       // Only poll if page is visible and socket is not connected
       if (!document.hidden && !socketConnected) {
-        console.log("📊 Polling: Refreshing stats (socket not connected)");
         dispatch(fetchStatsRequestSilent());
         dispatch(fetchRecentSongsRequest());
       } else if (!document.hidden && socketConnected) {
-        console.log("📊 Polling: Socket connected, doing light refresh");
         dispatch(fetchRecentSongsRequest()); // Only refresh recent songs
       }
     }, 30000); // Poll every 30 seconds
 
     return () => {
-      console.log("📊 Stopping polling");
       clearInterval(pollInterval);
     };
   }, [dispatch, pollingEnabled, socketConnected]);
@@ -144,7 +135,6 @@ export default function StatsDashboard() {
   };
 
   const handleManualRefresh = () => {
-    console.log("📊 Manual refresh triggered");
     setIsRefreshing(true);
     dispatch(fetchStatsRequest());
     dispatch(fetchRecentSongsRequest());
@@ -156,7 +146,6 @@ export default function StatsDashboard() {
 
   const togglePolling = () => {
     setPollingEnabled(!pollingEnabled);
-    console.log("📊 Polling", !pollingEnabled ? "enabled" : "disabled");
   };
 
   // Only show loading spinner on initial load (when no stats data exists)
