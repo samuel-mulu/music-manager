@@ -2,8 +2,13 @@
 
 > A comprehensive music management system built with **MongoDB, Express.js, React.js & Node.js** - demonstrating full-stack development capabilities with real-time features and modern best practices.
 
-[![frontend](https://music-manager-bay.vercel.app/)]
-[![Backend API](https://music-manager-1.onrender.com)]
+## 🚀 Live Demo
+
+| Service | Deployment | Link |
+|----------|-------------|------|
+| 🎨 **Frontend (React + TypeScript)** | ![Vercel](https://img.shields.io/badge/Vercel-Deployed-success?logo=vercel) | 🔗 [Open Frontend](https://music-manager-bay.vercel.app) |
+| ⚙️ **Backend (Express + MongoDB)** | ![Render](https://img.shields.io/badge/Render-API--Live-blue?logo=render) | 🔗 [Open API](https://music-manager-1.onrender.com) |
+
 
 ---
 
